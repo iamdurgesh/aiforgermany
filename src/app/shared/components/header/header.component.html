@@ -1,0 +1,22 @@
+<header class="site-header">
+  <div class="container site-header__inner">
+    <a class="site-brand" routerLink="/">
+      <span class="site-brand__name">AIforGermany</span>
+      <span class="site-brand__tagline">Editorial intelligence on Germany’s AI economy</span>
+    </a>
+
+    <nav aria-label="Primary" class="site-nav">
+      @for (item of navigation; track item.route) {
+        <a
+          [routerLink]="item.route"
+          routerLinkActive="is-active"
+          [routerLinkActiveOptions]="{ exact: item.exact ?? false }"
+        >
+          {{ item.label }}
+        </a>
+      }
+    </nav>
+
+    <a class="button button-primary site-header__cta" routerLink="/newsletter">Join newsletter</a>
+  </div>
+</header>

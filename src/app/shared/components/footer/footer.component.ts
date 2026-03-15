@@ -1,0 +1,15 @@
+import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { siteConfig, siteNavigation } from '@core/config/site.config';
+
+@Component({
+  selector: 'app-footer',
+  imports: [RouterLink],
+  templateUrl: './footer.component.html',
+  styleUrl: './footer.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
+})
+export class FooterComponent {
+  protected readonly navigation = siteNavigation;
+  protected readonly site = siteConfig;
+}

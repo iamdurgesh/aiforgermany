@@ -1,0 +1,31 @@
+.article-card {
+  display: grid;
+  gap: 1.4rem;
+  height: 100%;
+  padding: 1.5rem;
+}
+
+.article-card__meta,
+.article-card__body {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.article-card h3 {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 1.6rem;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+}
+
+.article-card p {
+  margin: 0;
+  color: var(--text-secondary);
+  line-height: 1.75;
+}
+
+.article-card__link {
+  color: var(--accent-strong);
+  font-weight: 700;
+}

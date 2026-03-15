@@ -1,0 +1,28 @@
+.about-page {
+  display: grid;
+  gap: 2rem;
+}
+
+.about-page__panel {
+  display: grid;
+  gap: 2rem;
+  padding: clamp(1.5rem, 3vw, 2rem);
+}
+
+.about-page__principles h2 {
+  margin: 0 0 1rem;
+  font-family: var(--font-serif);
+  font-size: 1.6rem;
+}
+
+.about-page__principles ul {
+  display: grid;
+  gap: 0.85rem;
+  margin: 0;
+  padding-left: 1.15rem;
+}
+
+.about-page__principles li {
+  color: var(--text-secondary);
+  line-height: 1.75;
+}

@@ -1,0 +1,32 @@
+<footer class="site-footer">
+  <div class="container site-footer__grid">
+    <div class="site-footer__brand">
+      <p class="eyebrow">AIforGermany</p>
+      <h2>Independent coverage of AI across Germany’s industrial and innovation landscape.</h2>
+      <p>{{ site.newsletterBlurb }}</p>
+    </div>
+
+    <div>
+      <h3>Navigate</h3>
+      <ul>
+        @for (item of navigation; track item.route) {
+          <li><a [routerLink]="item.route">{{ item.label }}</a></li>
+        }
+      </ul>
+    </div>
+
+    <div>
+      <h3>Coverage themes</h3>
+      <ul>
+        @for (theme of site.footerThemes; track theme) {
+          <li>{{ theme }}</li>
+        }
+      </ul>
+    </div>
+  </div>
+
+  <div class="container site-footer__bottom">
+    <span>© 2026 AIforGermany</span>
+    <a [href]="'mailto:' + site.newsletterEmail">{{ site.newsletterEmail }}</a>
+  </div>
+</footer>

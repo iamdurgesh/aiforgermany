@@ -1,0 +1,64 @@
+<section class="page-section">
+  <div class="container">
+    @if (article(); as currentArticle) {
+      <article class="article-detail">
+        <header class="article-detail__header surface-card">
+          <div class="article-detail__heading">
+            <p class="eyebrow">{{ currentArticle.heroEyebrow }}</p>
+            <h1 class="display-title article-detail__title">{{ currentArticle.title }}</h1>
+            <p class="lead">{{ currentArticle.excerpt }}</p>
+          </div>
+
+          <div class="article-detail__meta">
+            <span class="tag">{{ currentArticle.category }}</span>
+            <div class="meta-row">
+              <span>{{ currentArticle.publishedAt | date: 'mediumDate' }}</span>
+              <span>{{ currentArticle.readTime }}</span>
+              <span>{{ currentArticle.author }}</span>
+            </div>
+          </div>
+        </header>
+
+        <div class="article-detail__grid">
+          <div class="surface-card article-detail__body rich-text">
+            @for (section of currentArticle.bodySections; track section) {
+              <p>{{ section }}</p>
+            }
+          </div>
+
+          <aside class="surface-card article-detail__aside">
+            <h2>Key takeaways</h2>
+            <ul>
+              @for (takeaway of currentArticle.keyTakeaways; track takeaway) {
+                <li>{{ takeaway }}</li>
+              }
+            </ul>
+          </aside>
+        </div>
+
+        @if (relatedArticles().length) {
+          <section class="article-detail__related">
+            <div class="page-intro">
+              <p class="eyebrow">Related coverage</p>
+              <h2 class="section-title">More on this topic</h2>
+            </div>
+
+            <div class="article-detail__related-grid">
+              @for (relatedArticle of relatedArticles(); track relatedArticle.slug) {
+                <app-article-card [article]="relatedArticle"></app-article-card>
+              }
+            </div>
+          </section>
+        }
+      </article>
+
+      <app-newsletter-cta></app-newsletter-cta>
+    } @else {
+      <div class="not-found surface-card">
+        <p class="eyebrow">Missing article</p>
+        <h1 class="section-title">This article does not exist in the mock content set yet.</h1>
+        <a class="button button-primary" routerLink="/articles">Back to articles</a>
+      </div>
+    }
+  </div>
+</section>

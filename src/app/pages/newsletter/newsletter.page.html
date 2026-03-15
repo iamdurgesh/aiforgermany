@@ -1,0 +1,47 @@
+<section class="page-section">
+  <div class="container newsletter-page">
+    <div class="surface-card newsletter-page__panel">
+      <app-section-heading
+        eyebrow="Newsletter"
+        title="A weekly briefing on AI across Germany"
+        description="The current page is intentionally simple and ready for a future email provider or custom subscription flow."
+      ></app-section-heading>
+
+      <div class="split-grid">
+        <div class="rich-text">
+          <p>
+            The newsletter can become the editorial heartbeat of the platform: a concise digest that helps readers keep
+            track of industrial AI deployments, startup momentum, research transfer, and policy shifts without noise.
+          </p>
+          <p>
+            The form below is a placeholder UI only. It is designed to be swapped later for a provider integration,
+            custom API, or CMS-connected sign-up workflow.
+          </p>
+        </div>
+
+        <form class="newsletter-form surface-card">
+          <label>
+            <span>Name</span>
+            <input type="text" placeholder="Ada Lovelace">
+          </label>
+
+          <label>
+            <span>Email</span>
+            <input type="email" placeholder="you@example.com">
+          </label>
+
+          <button class="button button-primary" type="button">Subscription integration comes next</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="surface-card newsletter-page__notes">
+      <h2>What subscribers should expect</h2>
+      <ul>
+        @for (item of editorialValue; track item) {
+          <li>{{ item }}</li>
+        }
+      </ul>
+    </div>
+  </div>
+</section>

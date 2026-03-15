@@ -1,0 +1,23 @@
+<section class="page-section">
+  <div class="container">
+    <div class="page-intro">
+      <app-section-heading
+        eyebrow="Articles"
+        title="Reporting and analysis on AI across Germany"
+        description="This starter index is ready to evolve into a richer editorial archive with filters, pagination, authors, and structured content sources."
+      ></app-section-heading>
+
+      <div class="category-row">
+        @for (category of categories; track category) {
+          <span class="tag">{{ category }}</span>
+        }
+      </div>
+    </div>
+
+    <div class="articles-grid">
+      @for (article of articles; track article.slug) {
+        <app-article-card [article]="article"></app-article-card>
+      }
+    </div>
+  </div>
+</section>

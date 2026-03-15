@@ -1,0 +1,37 @@
+<section class="page-section">
+  <div class="container">
+    <app-section-heading
+      eyebrow="Topics"
+      title="Editorial hubs for the themes shaping AI in Germany"
+      description="These topic blocks can later evolve into richer category pages with timelines, reports, data cards, and filtered archives."
+    ></app-section-heading>
+
+    <div class="topics-grid">
+      @for (topic of topics; track topic.slug) {
+        <article class="topic-panel surface-card">
+          <div class="topic-panel__header">
+            <div>
+              <span class="tag">{{ topic.articleCount }} stories</span>
+              <h2>{{ topic.name }}</h2>
+            </div>
+            <p>{{ topic.summary }}</p>
+          </div>
+
+          <p class="topic-panel__description">{{ topic.description }}</p>
+
+          <ul class="topic-panel__focus">
+            @for (focusArea of topic.focusAreas; track focusArea) {
+              <li>{{ focusArea }}</li>
+            }
+          </ul>
+
+          <div class="topic-panel__articles">
+            @for (article of articlesFor(topic.slug); track article.slug) {
+              <a [routerLink]="['/articles', article.slug]">{{ article.title }}</a>
+            }
+          </div>
+        </article>
+      }
+    </div>
+  </div>
+</section>

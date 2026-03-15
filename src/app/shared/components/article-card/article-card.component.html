@@ -1,0 +1,16 @@
+<article class="article-card surface-card">
+  <div class="article-card__meta">
+    <span class="tag">{{ article().category }}</span>
+    <div class="meta-row">
+      <span>{{ article().publishedAt | date: 'mediumDate' }}</span>
+      <span>{{ article().readTime }}</span>
+    </div>
+  </div>
+
+  <div class="article-card__body">
+    <h3>{{ article().title }}</h3>
+    <p>{{ article().excerpt }}</p>
+  </div>
+
+  <a class="article-card__link" [routerLink]="['/articles', article().slug]">Read article</a>
+</article>
