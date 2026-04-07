@@ -12,6 +12,42 @@ const browserDistFolder = join(import.meta.dirname, '../browser');
 const app = express();
 const angularApp = new AngularNodeAppEngine();
 
+app.disable('x-powered-by');
+
+app.use((req, res, next) => {
+  // Enforce HTTPS for requests coming through Railway's proxy/load balancer.
+  const forwardedProto = req.get('x-forwarded-proto');
+  if (forwardedProto && forwardedProto !== 'https') {
+    return res.redirect(301, `https://${req.headers.host}${req.originalUrl}`);
+  }
+
+  res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+  res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+  res.setHeader('Cross-Origin-Resource-Policy', 'same-origin');
+  res.setHeader(
+    'Content-Security-Policy',
+    [
+      "default-src 'self'",
+      "base-uri 'self'",
+      "frame-ancestors 'none'",
+      "form-action 'self'",
+      "img-src 'self' data: https:",
+      "font-src 'self' data:",
+      "style-src 'self' 'unsafe-inline'",
+      "script-src 'self' 'unsafe-inline'",
+      "connect-src 'self' https:",
+      "object-src 'none'",
+      "upgrade-insecure-requests",
+    ].join('; '),
+  );
+
+  return next();
+});
+
 /**
  * Example Express Rest API endpoints can be defined here.
  * Uncomment and define endpoints as necessary.
