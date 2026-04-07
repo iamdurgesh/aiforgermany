@@ -13,7 +13,7 @@ export const siteConfig = {
   title: 'AIforGermany | AI, Industry, Startups, Research, Policy',
   description:
     'AIforGermany covers the companies, research labs, policymakers, and industrial shifts shaping AI adoption across Germany.',
-  siteUrl: 'https://aiforgermany.de',
+  siteUrl: 'https://www.aiforgermany.de',
   newsletterEmail: 'editors@aiforgermany.de',
   newsletterBlurb:
     'A concise weekly briefing on AI in German industry, startups, research, and policy.',
