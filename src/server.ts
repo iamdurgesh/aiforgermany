@@ -6,22 +6,27 @@ import {
 } from '@angular/ssr/node';
 import express from 'express';
 import { join } from 'node:path';
+import { siteConfig } from './app/core/config/site.config';
 
 const browserDistFolder = join(import.meta.dirname, '../browser');
+const canonicalSiteUrl = new URL(siteConfig.siteUrl);
+const isProduction = process.env['NODE_ENV'] === 'production';
 
 const app = express();
 const angularApp = new AngularNodeAppEngine();
 
+app.set('trust proxy', 1);
 app.disable('x-powered-by');
 
 app.use((req, res, next) => {
-  // Enforce HTTPS for requests coming through Railway's proxy/load balancer.
-  const forwardedProto = req.get('x-forwarded-proto');
-  if (forwardedProto && forwardedProto !== 'https') {
-    return res.redirect(301, `https://${req.headers.host}${req.originalUrl}`);
+  if (isProduction && !req.secure) {
+    return res.redirect(308, `${canonicalSiteUrl.origin}${req.originalUrl}`);
   }
 
-  res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+  if (isProduction && req.secure) {
+    res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+  }
+
   res.setHeader('X-Frame-Options', 'DENY');
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
@@ -38,7 +43,7 @@ app.use((req, res, next) => {
       "img-src 'self' data: https:",
       "font-src 'self' data:",
       "style-src 'self' 'unsafe-inline'",
-      "script-src 'self' 'unsafe-inline'",
+      "script-src 'self'",
       "connect-src 'self' https:",
       "object-src 'none'",
       "upgrade-insecure-requests",
