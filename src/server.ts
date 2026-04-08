@@ -11,12 +11,15 @@ import { siteConfig } from './app/core/config/site.config';
 const browserDistFolder = join(import.meta.dirname, '../browser');
 const canonicalSiteUrl = new URL(siteConfig.siteUrl);
 const isProduction = process.env['NODE_ENV'] === 'production';
+const requestBodyLimit = '100kb';
 
 const app = express();
 const angularApp = new AngularNodeAppEngine();
 
 app.set('trust proxy', 1);
 app.disable('x-powered-by');
+app.use(express.json({ limit: requestBodyLimit }));
+app.use(express.urlencoded({ extended: false, limit: requestBodyLimit }));
 
 app.use((req, res, next) => {
   if (isProduction && !req.secure) {
@@ -86,6 +89,16 @@ app.use((req, res, next) => {
       response ? writeResponseToNodeResponse(response, res) : next(),
     )
     .catch(next);
+});
+
+app.use((error: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+  console.error(error);
+
+  if (res.headersSent) {
+    return;
+  }
+
+  res.status(500).send(isProduction ? 'Internal Server Error' : 'Server Error');
 });
 
 /**
