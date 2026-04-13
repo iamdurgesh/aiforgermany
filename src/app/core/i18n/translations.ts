@@ -66,8 +66,41 @@ export interface TranslationDictionary {
         exploreTopics: string;
         readyValue: string;
         coverageAreas: string;
-        searchFriendly: string;
         scalableFoundation: string;
+      };
+      carousel: {
+        slides: {
+          frontier: {
+            title: string;
+            subtitle: string;
+            alt: string;
+          };
+          industry: {
+            title: string;
+            subtitle: string;
+            alt: string;
+          };
+          research: {
+            title: string;
+            subtitle: string;
+            alt: string;
+          };
+          mobility: {
+            title: string;
+            subtitle: string;
+            alt: string;
+          };
+          governance: {
+            title: string;
+            subtitle: string;
+            alt: string;
+          };
+          ecosystem: {
+            title: string;
+            subtitle: string;
+            alt: string;
+          };
+        };
       };
       featured: {
         eyebrow: string;
@@ -259,8 +292,41 @@ export const translations: Record<AppLocale, TranslationDictionary> = {
           exploreTopics: 'Explore topics',
           readyValue: 'Ready',
           coverageAreas: 'Core coverage areas spanning industry, startups, research, policy, and innovation.',
-          searchFriendly: 'Search-friendly Angular rendering from day one for editorial publishing.',
           scalableFoundation: 'Foundation prepared for reports, directories, and data-driven category pages.'
+        },
+        carousel: {
+          slides: {
+            frontier: {
+              title: 'AI Frontier',
+              subtitle: 'A premium opening frame for Germany’s next phase of industrial, civic, and research AI.',
+              alt: 'Futuristic AI visual introducing Germany’s technology transition'
+            },
+            industry: {
+              title: 'Smart Industry',
+              subtitle: 'AI-driven factories, robotics, and precision automation across Germany’s industrial base.',
+              alt: 'Industrial robotics and connected production systems'
+            },
+            research: {
+              title: 'Research and Innovation',
+              subtitle: 'Scientific discovery, applied institutes, and sovereign AI capability moving into real systems.',
+              alt: 'Advanced laboratory environment with AI research context'
+            },
+            mobility: {
+              title: 'Clean Mobility',
+              subtitle: 'Autonomous transport, efficient fleets, and software-defined mobility infrastructure.',
+              alt: 'Modern vehicle and sustainable mobility technology'
+            },
+            governance: {
+              title: 'Digital Governance',
+              subtitle: 'Public infrastructure, policy oversight, and compliant AI deployment at national scale.',
+              alt: 'Modern civic architecture representing digital governance'
+            },
+            ecosystem: {
+              title: 'National AI Ecosystem',
+              subtitle: 'Connected institutions, startups, infrastructure, and public capacity shaping Germany’s AI stack.',
+              alt: 'Connected AI ecosystem visual for Germany'
+            }
+          }
         },
         featured: {
           eyebrow: 'Featured coverage',
@@ -454,8 +520,41 @@ export const translations: Record<AppLocale, TranslationDictionary> = {
           exploreTopics: 'Themen erkunden',
           readyValue: 'Bereit',
           coverageAreas: 'Kernbereiche rund um Industrie, Startups, Forschung, Politik und Innovation.',
-          searchFriendly: 'Suchmaschinenfreundliches Angular-Rendering von Anfang an für redaktionelles Publizieren.',
           scalableFoundation: 'Fundament für Reports, Verzeichnisse und datengetriebene Themenseiten vorbereitet.'
+        },
+        carousel: {
+          slides: {
+            frontier: {
+              title: 'KI-Aufbruch',
+              subtitle: 'Ein prägnantes Eröffnungsbild für Deutschlands nächste Phase industrieller, staatlicher und wissenschaftlicher KI.',
+              alt: 'Futuristische KI-Visualisierung für Deutschlands technologischen Wandel'
+            },
+            industry: {
+              title: 'Smarte Industrie',
+              subtitle: 'KI-getriebene Fabriken, Robotik und präzise Automatisierung in Deutschlands industrieller Basis.',
+              alt: 'Industrierobotik und vernetzte Produktionssysteme'
+            },
+            research: {
+              title: 'Forschung und Innovation',
+              subtitle: 'Wissenschaftliche Durchbrüche, angewandte Institute und souveräne KI-Kompetenz im Übergang in reale Systeme.',
+              alt: 'Modernes Laborumfeld mit KI-Forschungskontext'
+            },
+            mobility: {
+              title: 'Saubere Mobilität',
+              subtitle: 'Autonomer Verkehr, effiziente Flotten und softwaredefinierte Mobilitätsinfrastruktur.',
+              alt: 'Modernes Fahrzeug und nachhaltige Mobilitätstechnologie'
+            },
+            governance: {
+              title: 'Digitale Governance',
+              subtitle: 'Öffentliche Infrastruktur, politische Aufsicht und regelkonformer KI-Einsatz im großen Maßstab.',
+              alt: 'Moderne Architektur als Sinnbild digitaler Governance'
+            },
+            ecosystem: {
+              title: 'Nationales KI-Ökosystem',
+              subtitle: 'Vernetzte Institutionen, Startups, Infrastruktur und staatliche Kapazität entlang des deutschen KI-Stacks.',
+              alt: 'Visualisierung eines vernetzten KI-Ökosystems in Deutschland'
+            }
+          }
         },
         featured: {
           eyebrow: 'Im Fokus',

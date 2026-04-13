@@ -1,0 +1,32 @@
+<div class="hero-carousel">
+  <div class="hero-carousel__viewport">
+    @for (slide of slides(); track slide.image; let index = $index) {
+      <article
+        class="hero-carousel__slide"
+        [class.is-active]="index === currentIndex()"
+        [attr.aria-hidden]="index === currentIndex() ? 'false' : 'true'"
+      >
+        <img class="hero-carousel__image" [src]="slide.image" [alt]="slide.alt" />
+        <div class="hero-carousel__overlay"></div>
+
+        <div class="hero-carousel__caption">
+          <h2>{{ slide.title }}</h2>
+          <p>{{ slide.subtitle }}</p>
+        </div>
+      </article>
+    }
+  </div>
+
+  <div class="hero-carousel__controls" aria-label="Homepage carousel navigation" role="tablist">
+    @for (slide of slides(); track slide.image; let index = $index) {
+      <button
+        type="button"
+        class="hero-carousel__dot"
+        [class.is-active]="index === currentIndex()"
+        [attr.aria-label]="slide.title"
+        [attr.aria-selected]="index === currentIndex()"
+        (click)="setCurrentIndex(index)"
+      ></button>
+    }
+  </div>
+</div>
