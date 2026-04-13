@@ -1,31 +1,3 @@
-<section class="hero page-section">
-  <div class="container hero__grid surface-card">
-    <div class="hero__content">
-      <p class="eyebrow">{{ eyebrow() }}</p>
-      <h1 class="display-title">{{ title() }}</h1>
-      <p class="lead">{{ description() }}</p>
-
-      <div class="hero__actions">
-        @for (action of actions(); track action.route) {
-          <a
-            class="button"
-            [class.button-primary]="action.variant === 'primary'"
-            [class.button-secondary]="action.variant === 'secondary'"
-            [routerLink]="action.route"
-          >
-            {{ action.label }}
-          </a>
-        }
-      </div>
-    </div>
-
-    <div class="hero__stats">
-      @for (stat of stats(); track stat.label) {
-        <article>
-          <span>{{ stat.value }}</span>
-          <p>{{ stat.label }}</p>
-        </article>
-      }
-    </div>
-  </div>
+<section class="hero">
+  <app-homepage-carousel></app-homepage-carousel>
 </section>

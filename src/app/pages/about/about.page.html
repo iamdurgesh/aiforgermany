@@ -2,27 +2,21 @@
   <div class="container about-page">
     <div class="surface-card about-page__panel">
       <app-section-heading
-        eyebrow="About"
-        title="A publication framework for making AI in Germany legible"
-        description="AIforGermany is positioned as a clean editorial platform covering how artificial intelligence shapes German industrial strength, startup momentum, research transfer, and public capability."
+        [eyebrow]="'pages.about.intro.eyebrow' | t"
+        [title]="'pages.about.intro.title' | t"
+        [description]="'pages.about.intro.description' | t"
       ></app-section-heading>
 
       <div class="split-grid">
         <div class="rich-text">
-          <p>
-            The initial build is intentionally minimal and professional. It emphasizes strong hierarchy, content-first
-            layouts, and a maintainable Angular structure that can scale into richer publishing workflows.
-          </p>
-          <p>
-            From here, the project can grow into long-form reports, startup directories, regional ecosystem pages, and
-            data-backed topic hubs without needing to replace the core shell.
-          </p>
+          <p>{{ 'pages.about.body.one' | t }}</p>
+          <p>{{ 'pages.about.body.two' | t }}</p>
         </div>
 
         <div class="about-page__principles">
-          <h2>Editorial principles</h2>
+          <h2>{{ 'pages.about.principles.title' | t }}</h2>
           <ul>
-            @for (principle of principles; track principle) {
+            @for (principle of principles(); track principle) {
               <li>{{ principle }}</li>
             }
           </ul>

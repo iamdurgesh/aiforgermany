@@ -1,4 +1,7 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject } from '@angular/core';
+import { LocalizedRouterService } from '@core/i18n/localized-router.service';
+import { TranslatePipe } from '@core/i18n/translate.pipe';
+import { TranslateService } from '@core/i18n/translate.service';
 import { ContentService } from '@core/services/content.service';
 import { SeoService } from '@core/seo/seo.service';
 import { ArticleCardComponent } from '@shared/components/article-card/article-card.component';
@@ -8,7 +11,7 @@ import { SectionHeadingComponent } from '@shared/components/section-heading/sect
 
 @Component({
   selector: 'app-home-page',
-  imports: [HeroSectionComponent, SectionHeadingComponent, ArticleCardComponent, NewsletterCtaComponent],
+  imports: [HeroSectionComponent, SectionHeadingComponent, ArticleCardComponent, NewsletterCtaComponent, TranslatePipe],
   templateUrl: './home.page.html',
   styleUrl: './home.page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -16,26 +19,36 @@ import { SectionHeadingComponent } from '@shared/components/section-heading/sect
 export class HomePage {
   private readonly seoService = inject(SeoService);
   private readonly contentService = inject(ContentService);
+  private readonly translate = inject(TranslateService);
+  private readonly localizedRouter = inject(LocalizedRouterService);
 
-  protected readonly featuredArticles = this.contentService.getFeaturedArticles();
-  protected readonly topics = this.contentService.getTopics();
-  protected readonly heroActions: readonly HeroAction[] = [
-    { label: 'Read latest coverage', route: '/articles', variant: 'primary' },
-    { label: 'Explore topics', route: '/topics', variant: 'secondary' }
-  ];
-  protected readonly heroStats: readonly HeroStat[] = [
-    { value: '5', label: 'Core coverage areas spanning industry, startups, research, policy, and innovation.' },
-    { value: 'SSR', label: 'Search-friendly Angular rendering from day one for editorial publishing.' },
-    { value: 'Ready', label: 'Foundation prepared for reports, directories, and data-driven category pages.' }
-  ];
+  protected readonly featuredArticles = computed(() => this.contentService.getFeaturedArticles());
+  protected readonly topics = computed(() => this.contentService.getTopics());
+  protected readonly heroActions = computed<readonly HeroAction[]>(() => [
+    {
+      label: this.translate.t('pages.home.hero.latestCoverage'),
+      route: this.localizedRouter.path('articles'),
+      variant: 'primary'
+    },
+    {
+      label: this.translate.t('pages.home.hero.exploreTopics'),
+      route: this.localizedRouter.path('topics'),
+      variant: 'secondary'
+    }
+  ]);
+  protected readonly heroStats = computed<readonly HeroStat[]>(() => [
+    { value: '5', label: this.translate.t('pages.home.hero.coverageAreas') },
+    { value: 'SSR', label: this.translate.t('pages.home.hero.searchFriendly') },
+    { value: this.translate.t('pages.home.hero.readyValue'), label: this.translate.t('pages.home.hero.scalableFoundation') }
+  ]);
 
   constructor() {
-    this.seoService.update({
-      title: 'AI for Germany',
-      description:
-        'AIforGermany is a modern editorial platform covering AI across German industry, startups, research, policy, and innovation.',
-      canonicalPath: '/',
-      keywords: ['AI Germany', 'German AI startups', 'Industry 5.0', 'AI policy Germany']
+    effect(() => {
+      this.seoService.update({
+        title: this.translate.t('pages.home.seo.title'),
+        description: this.translate.t('pages.home.seo.description'),
+        canonicalPath: '/'
+      });
     });
   }
 }

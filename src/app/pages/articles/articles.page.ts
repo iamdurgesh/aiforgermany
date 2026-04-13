@@ -1,4 +1,6 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject } from '@angular/core';
+import { TranslatePipe } from '@core/i18n/translate.pipe';
+import { TranslateService } from '@core/i18n/translate.service';
 import { ContentService } from '@core/services/content.service';
 import { SeoService } from '@core/seo/seo.service';
 import { ArticleCardComponent } from '@shared/components/article-card/article-card.component';
@@ -6,7 +8,7 @@ import { SectionHeadingComponent } from '@shared/components/section-heading/sect
 
 @Component({
   selector: 'app-articles-page',
-  imports: [SectionHeadingComponent, ArticleCardComponent],
+  imports: [SectionHeadingComponent, ArticleCardComponent, TranslatePipe],
   templateUrl: './articles.page.html',
   styleUrl: './articles.page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -14,17 +16,18 @@ import { SectionHeadingComponent } from '@shared/components/section-heading/sect
 export class ArticlesPage {
   private readonly seoService = inject(SeoService);
   private readonly contentService = inject(ContentService);
+  protected readonly translate = inject(TranslateService);
 
-  protected readonly articles = this.contentService.getArticles();
-  protected readonly categories = [...new Set(this.articles.map((article) => article.category))];
+  protected readonly articles = computed(() => this.contentService.getArticles());
+  protected readonly categories = computed(() => [...new Set(this.articles().map((article) => article.categoryKey))]);
 
   constructor() {
-    this.seoService.update({
-      title: 'Articles',
-      description:
-        'Browse AIforGermany coverage across industry, startups, research, and policy in a clean editorial article index.',
-      canonicalPath: '/articles',
-      keywords: ['AI articles Germany', 'German AI analysis', 'AI industry coverage']
+    effect(() => {
+      this.seoService.update({
+        title: this.translate.t('pages.articles.seo.title'),
+        description: this.translate.t('pages.articles.seo.description'),
+        canonicalPath: '/articles'
+      });
     });
   }
 }

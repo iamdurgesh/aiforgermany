@@ -2,43 +2,37 @@
   <div class="container newsletter-page">
     <div class="surface-card newsletter-page__panel">
       <app-section-heading
-        eyebrow="Newsletter"
-        title="A weekly briefing on AI across Germany"
-        description="The current page is intentionally simple and ready for a future email provider or custom subscription flow."
+        [eyebrow]="'pages.newsletter.intro.eyebrow' | t"
+        [title]="'pages.newsletter.intro.title' | t"
+        [description]="'pages.newsletter.intro.description' | t"
       ></app-section-heading>
 
       <div class="split-grid">
         <div class="rich-text">
-          <p>
-            The newsletter can become the editorial heartbeat of the platform: a concise digest that helps readers keep
-            track of industrial AI deployments, startup momentum, research transfer, and policy shifts without noise.
-          </p>
-          <p>
-            The form below is a placeholder UI only. It is designed to be swapped later for a provider integration,
-            custom API, or CMS-connected sign-up workflow.
-          </p>
+          <p>{{ 'pages.newsletter.body.one' | t }}</p>
+          <p>{{ 'pages.newsletter.body.two' | t }}</p>
         </div>
 
         <form class="newsletter-form surface-card">
           <label>
-            <span>Name</span>
-            <input type="text" placeholder="Ada Lovelace">
+            <span>{{ 'pages.newsletter.form.name' | t }}</span>
+            <input type="text" [placeholder]="'pages.newsletter.form.namePlaceholder' | t">
           </label>
 
           <label>
-            <span>Email</span>
-            <input type="email" placeholder="you@example.com">
+            <span>{{ 'pages.newsletter.form.email' | t }}</span>
+            <input type="email" [placeholder]="'pages.newsletter.form.emailPlaceholder' | t">
           </label>
 
-          <button class="button button-primary" type="button">Subscription integration comes next</button>
+          <button class="button button-primary" type="button">{{ 'pages.newsletter.form.button' | t }}</button>
         </form>
       </div>
     </div>
 
     <div class="surface-card newsletter-page__notes">
-      <h2>What subscribers should expect</h2>
+      <h2>{{ 'pages.newsletter.expectations.title' | t }}</h2>
       <ul>
-        @for (item of editorialValue; track item) {
+        @for (item of editorialValue(); track item) {
           <li>{{ item }}</li>
         }
       </ul>

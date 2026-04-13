@@ -1,16 +1,17 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { LocalizedRouterService } from '@core/i18n/localized-router.service';
+import { TranslatePipe } from '@core/i18n/translate.pipe';
 
 @Component({
   selector: 'app-newsletter-cta',
-  imports: [RouterLink],
+  imports: [RouterLink, TranslatePipe],
   templateUrl: './newsletter-cta.component.html',
   styleUrl: './newsletter-cta.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class NewsletterCtaComponent {
-  readonly title = input('Subscribe to the weekly AIforGermany briefing');
-  readonly description = input(
-    'A concise weekly dispatch covering German AI industry moves, startup traction, research signals, and policy developments.'
-  );
+  protected readonly localizedRouter = inject(LocalizedRouterService);
+  readonly title = input<string | null>(null);
+  readonly description = input<string | null>(null);
 }

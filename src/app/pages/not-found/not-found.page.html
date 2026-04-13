@@ -1,12 +1,10 @@
 <section class="page-section">
   <div class="container">
     <div class="not-found-page surface-card">
-      <p class="eyebrow">404</p>
-      <h1 class="section-title">This page is not part of the current AIforGermany route map.</h1>
-      <p class="lead">
-        The routing foundation is ready, but this specific URL does not map to a page yet.
-      </p>
-      <a class="button button-primary" routerLink="/">Return home</a>
+      <p class="eyebrow">{{ 'pages.notFound.eyebrow' | t }}</p>
+      <h1 class="section-title">{{ 'pages.notFound.title' | t }}</h1>
+      <p class="lead">{{ 'pages.notFound.description' | t }}</p>
+      <a class="button button-primary" [routerLink]="localizedRouter.path()">{{ 'common.returnHome' | t }}</a>
     </div>
   </div>
 </section>

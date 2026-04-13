@@ -1,21 +1,21 @@
 <app-hero-section
-  eyebrow="AI in Germany"
-  title="A clean editorial platform for understanding Germany’s AI transition."
-  description="AIforGermany is designed to track how artificial intelligence is reshaping German industry, startups, research institutions, policy agendas, and the broader innovation ecosystem."
-  [actions]="heroActions"
-  [stats]="heroStats"
+  [eyebrow]="'pages.home.hero.eyebrow' | t"
+  [title]="'pages.home.hero.title' | t"
+  [description]="'pages.home.hero.description' | t"
+  [actions]="heroActions()"
+  [stats]="heroStats()"
 ></app-hero-section>
 
 <section class="page-section">
   <div class="container">
     <app-section-heading
-      eyebrow="Featured coverage"
-      title="Signals that matter across Germany’s AI landscape"
-      description="The initial article framework is ready for editorial publishing, category growth, and future content operations."
+      [eyebrow]="'pages.home.featured.eyebrow' | t"
+      [title]="'pages.home.featured.title' | t"
+      [description]="'pages.home.featured.description' | t"
     ></app-section-heading>
 
     <div class="home-grid home-grid--articles">
-      @for (article of featuredArticles; track article.slug) {
+      @for (article of featuredArticles(); track article.slug) {
         <app-article-card [article]="article"></app-article-card>
       }
     </div>
@@ -25,15 +25,15 @@
 <section class="page-section">
   <div class="container">
     <app-section-heading
-      eyebrow="Topics"
-      title="Built around the themes that define the German AI conversation"
-      description="The site structure supports editorial topic hubs now and leaves room for richer category pages later."
+      [eyebrow]="'pages.home.topics.eyebrow' | t"
+      [title]="'pages.home.topics.title' | t"
+      [description]="'pages.home.topics.description' | t"
     ></app-section-heading>
 
     <div class="home-grid home-grid--topics">
-      @for (topic of topics; track topic.slug) {
+      @for (topic of topics(); track topic.slug) {
         <article class="topic-card surface-card">
-          <span class="tag">{{ topic.articleCount }} stories</span>
+          <span class="tag">{{ 'common.stories' | t: { count: topic.articleCount } }}</span>
           <h3>{{ topic.name }}</h3>
           <p>{{ topic.description }}</p>
           <ul>
@@ -51,19 +51,13 @@
   <div class="container">
     <div class="home-brief surface-card">
       <div>
-        <p class="eyebrow">Editorial direction</p>
-        <h2 class="section-title">Minimal now, scalable later.</h2>
+        <p class="eyebrow">{{ 'pages.home.editorialDirection.eyebrow' | t }}</p>
+        <h2 class="section-title">{{ 'pages.home.editorialDirection.title' | t }}</h2>
       </div>
 
       <div class="rich-text">
-        <p>
-          This starter foundation already supports a landing page, article index, article detail view, topic overview,
-          newsletter section, about page, and 404 experience.
-        </p>
-        <p>
-          The content layer is intentionally simple and mock-data driven so future work can introduce a CMS, markdown
-          pipeline, API, or static content workflow without forcing a structural rewrite.
-        </p>
+        <p>{{ 'pages.home.editorialDirection.bodyOne' | t }}</p>
+        <p>{{ 'pages.home.editorialDirection.bodyTwo' | t }}</p>
       </div>
     </div>
   </div>

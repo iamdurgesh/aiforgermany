@@ -1,10 +1,12 @@
+export type ArticleCategoryKey = 'industry' | 'startups' | 'research' | 'policy';
+
 export interface Article {
   slug: string;
   title: string;
   excerpt: string;
-  category: string;
+  categoryKey: ArticleCategoryKey;
   topicSlug: string;
-  readTime: string;
+  readTimeMinutes: number;
   publishedAt: string;
   author: string;
   heroEyebrow: string;

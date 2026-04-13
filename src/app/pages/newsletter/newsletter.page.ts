@@ -1,29 +1,33 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject } from '@angular/core';
+import { TranslatePipe } from '@core/i18n/translate.pipe';
+import { TranslateService } from '@core/i18n/translate.service';
 import { SeoService } from '@core/seo/seo.service';
 import { SectionHeadingComponent } from '@shared/components/section-heading/section-heading.component';
 
 @Component({
   selector: 'app-newsletter-page',
-  imports: [SectionHeadingComponent],
+  imports: [SectionHeadingComponent, TranslatePipe],
   templateUrl: './newsletter.page.html',
   styleUrl: './newsletter.page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class NewsletterPage {
   private readonly seoService = inject(SeoService);
+  private readonly translate = inject(TranslateService);
 
-  protected readonly editorialValue = [
-    'A weekly summary of the most relevant AI signals across Germany.',
-    'Short analysis on industrial adoption, startups, research, and policy.',
-    'A format designed for busy operators, founders, researchers, and policymakers.'
-  ];
+  protected readonly editorialValue = computed(() => [
+    this.translate.t('pages.newsletter.expectations.one'),
+    this.translate.t('pages.newsletter.expectations.two'),
+    this.translate.t('pages.newsletter.expectations.three')
+  ]);
 
   constructor() {
-    this.seoService.update({
-      title: 'Newsletter',
-      description:
-        'Explore the AIforGermany newsletter section and its weekly briefing on AI across Germany.',
-      canonicalPath: '/newsletter'
+    effect(() => {
+      this.seoService.update({
+        title: this.translate.t('pages.newsletter.seo.title'),
+        description: this.translate.t('pages.newsletter.seo.description'),
+        canonicalPath: '/newsletter'
+      });
     });
   }
 }

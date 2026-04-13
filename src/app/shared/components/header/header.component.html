@@ -1,22 +1,37 @@
 <header class="site-header">
   <div class="container site-header__inner">
-    <a class="site-brand" routerLink="/">
+    <a class="site-brand" [routerLink]="localizedRouter.path()">
       <img class="site-brand__logo" src="/assets/afg_Logo2_header.png" alt="AIforGermany" />
       <span class="site-brand__name">AIforGermany</span>
     </a>
 
-    <nav aria-label="Primary" class="site-nav">
+    <nav [attr.aria-label]="'header.primaryNavigation' | t" class="site-nav">
       @for (item of navigation; track item.route) {
         <a
-          [routerLink]="item.route"
+          [routerLink]="localizedRouter.path(item.route)"
           routerLinkActive="is-active"
           [routerLinkActiveOptions]="{ exact: item.exact ?? false }"
         >
-          {{ item.label }}
+          {{ item.labelKey | t }}
         </a>
       }
     </nav>
 
-    <a class="button button-primary site-header__cta" routerLink="/newsletter">Join newsletter</a>
+    <div class="site-header__actions">
+      <div class="locale-switcher" [attr.aria-label]="'common.language' | t">
+        @for (locale of locales; track locale.code) {
+          <a
+            [routerLink]="localizedRouter.switchLocalePath(locale.code)"
+            [class.is-active]="localeService.currentLocale() === locale.code"
+          >
+            {{ locale.code.toUpperCase() }}
+          </a>
+        }
+      </div>
+
+      <a class="button button-primary site-header__cta" [routerLink]="localizedRouter.path('newsletter')">
+        {{ 'header.joinNewsletter' | t }}
+      </a>
+    </div>
   </div>
 </header>
