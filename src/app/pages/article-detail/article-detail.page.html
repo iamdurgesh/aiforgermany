@@ -10,10 +10,10 @@
           </div>
 
           <div class="article-detail__meta">
-            <span class="tag">{{ currentArticle.category }}</span>
+            <span class="tag">{{ i18n.category(currentArticle.categoryKey) }}</span>
             <div class="meta-row">
-              <span>{{ currentArticle.publishedAt | date: 'mediumDate' }}</span>
-              <span>{{ currentArticle.readTime }}</span>
+              <span>{{ currentArticle.publishedAt | localizedDate: 'mediumDate' }}</span>
+              <span>{{ i18n.readTime(currentArticle.readTimeMinutes) }}</span>
               <span>{{ currentArticle.author }}</span>
             </div>
           </div>
@@ -27,7 +27,7 @@
           </div>
 
           <aside class="surface-card article-detail__aside">
-            <h2>Key takeaways</h2>
+            <h2>{{ 'common.keyTakeaways' | t }}</h2>
             <ul>
               @for (takeaway of currentArticle.keyTakeaways; track takeaway) {
                 <li>{{ takeaway }}</li>
@@ -39,8 +39,8 @@
         @if (relatedArticles().length) {
           <section class="article-detail__related">
             <div class="page-intro">
-              <p class="eyebrow">Related coverage</p>
-              <h2 class="section-title">More on this topic</h2>
+              <p class="eyebrow">{{ 'common.relatedCoverage' | t }}</p>
+              <h2 class="section-title">{{ 'common.moreOnThisTopic' | t }}</h2>
             </div>
 
             <div class="article-detail__related-grid">
@@ -55,9 +55,11 @@
       <app-newsletter-cta></app-newsletter-cta>
     } @else {
       <div class="not-found surface-card">
-        <p class="eyebrow">Missing article</p>
-        <h1 class="section-title">This article does not exist in the mock content set yet.</h1>
-        <a class="button button-primary" routerLink="/articles">Back to articles</a>
+        <p class="eyebrow">{{ 'pages.articleDetail.missing.eyebrow' | t }}</p>
+        <h1 class="section-title">{{ 'pages.articleDetail.missing.title' | t }}</h1>
+        <a class="button button-primary" [routerLink]="localizedRouter.path('articles')">
+          {{ 'common.backToArticles' | t }}
+        </a>
       </div>
     }
   </div>

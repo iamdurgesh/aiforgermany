@@ -7,6 +7,7 @@ import {
 import express from 'express';
 import { join } from 'node:path';
 import { siteConfig } from './app/core/config/site.config';
+import { getLocaleFromPath, resolveRequestLocale, toLocalizedPath } from './app/core/i18n/locale.utils';
 
 const browserDistFolder = join(import.meta.dirname, '../browser');
 const canonicalSiteUrl = new URL(siteConfig.siteUrl);
@@ -54,6 +55,26 @@ app.use((req, res, next) => {
   );
 
   return next();
+});
+
+app.use((req, res, next) => {
+  if (req.method !== 'GET' && req.method !== 'HEAD') {
+    return next();
+  }
+
+  if (getLocaleFromPath(req.path)) {
+    return next();
+  }
+
+  if (req.path.startsWith('/assets/') || /\.[a-z0-9]+$/i.test(req.path) || req.path.startsWith('/api/')) {
+    return next();
+  }
+
+  const preferredLocale = resolveRequestLocale(req.path, req.acceptsLanguages() ?? []);
+  const localizedPath = toLocalizedPath(preferredLocale, req.path);
+  const query = req.url.includes('?') ? req.url.slice(req.url.indexOf('?')) : '';
+
+  return res.redirect(308, `${localizedPath}${query}`);
 });
 
 /**

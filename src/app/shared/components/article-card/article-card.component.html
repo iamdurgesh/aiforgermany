@@ -1,9 +1,9 @@
 <article class="article-card surface-card">
   <div class="article-card__meta">
-    <span class="tag">{{ article().category }}</span>
+    <span class="tag">{{ translate.category(article().categoryKey) }}</span>
     <div class="meta-row">
-      <span>{{ article().publishedAt | date: 'mediumDate' }}</span>
-      <span>{{ article().readTime }}</span>
+      <span>{{ article().publishedAt | localizedDate: 'mediumDate' }}</span>
+      <span>{{ translate.readTime(article().readTimeMinutes) }}</span>
     </div>
   </div>
 
@@ -12,5 +12,7 @@
     <p>{{ article().excerpt }}</p>
   </div>
 
-  <a class="article-card__link" [routerLink]="['/articles', article().slug]">Read article</a>
+  <a class="article-card__link" [routerLink]="localizedRouter.articlePath(article().slug)">
+    {{ 'common.readArticle' | t }}
+  </a>
 </article>

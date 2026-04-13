@@ -1,8 +1,11 @@
-import { DatePipe } from '@angular/common';
 import { computed, effect, inject, ChangeDetectionStrategy, Component } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { map } from 'rxjs';
+import { LocalizedDatePipe } from '@core/i18n/localized-date.pipe';
+import { LocalizedRouterService } from '@core/i18n/localized-router.service';
+import { TranslatePipe } from '@core/i18n/translate.pipe';
+import { TranslateService } from '@core/i18n/translate.service';
 import { ContentService } from '@core/services/content.service';
 import { SeoService } from '@core/seo/seo.service';
 import { ArticleCardComponent } from '@shared/components/article-card/article-card.component';
@@ -10,7 +13,7 @@ import { NewsletterCtaComponent } from '@shared/components/newsletter-cta/newsle
 
 @Component({
   selector: 'app-article-detail-page',
-  imports: [RouterLink, DatePipe, ArticleCardComponent, NewsletterCtaComponent],
+  imports: [RouterLink, LocalizedDatePipe, ArticleCardComponent, NewsletterCtaComponent, TranslatePipe],
   templateUrl: './article-detail.page.html',
   styleUrl: './article-detail.page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -19,6 +22,8 @@ export class ArticleDetailPage {
   private readonly route = inject(ActivatedRoute);
   private readonly seoService = inject(SeoService);
   private readonly contentService = inject(ContentService);
+  private readonly translate = inject(TranslateService);
+  protected readonly localizedRouter = inject(LocalizedRouterService);
   private readonly slug = toSignal(
     this.route.paramMap.pipe(map((params) => params.get('slug') ?? '')),
     { initialValue: this.route.snapshot.paramMap.get('slug') ?? '' }
@@ -36,8 +41,8 @@ export class ArticleDetailPage {
 
       if (!article) {
         this.seoService.update({
-          title: 'Article not found',
-          description: 'The requested article could not be found.',
+          title: this.translate.t('pages.articleDetail.missing.seoTitle'),
+          description: this.translate.t('pages.articleDetail.missing.seoDescription'),
           canonicalPath: `/articles/${this.slug()}`
         });
 
@@ -48,9 +53,11 @@ export class ArticleDetailPage {
         title: article.title,
         description: article.seoDescription,
         canonicalPath: `/articles/${article.slug}`,
-        keywords: [article.category, article.heroEyebrow, 'AI Germany article'],
+        keywords: [this.translate.category(article.categoryKey), article.heroEyebrow, 'AIforGermany'],
         type: 'article'
       });
     });
   }
+
+  protected readonly i18n = this.translate;
 }

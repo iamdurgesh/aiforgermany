@@ -1,17 +1,17 @@
 <section class="page-section">
   <div class="container">
     <app-section-heading
-      eyebrow="Topics"
-      title="Editorial hubs for the themes shaping AI in Germany"
-      description="These topic blocks can later evolve into richer category pages with timelines, reports, data cards, and filtered archives."
+      [eyebrow]="'pages.topics.intro.eyebrow' | t"
+      [title]="'pages.topics.intro.title' | t"
+      [description]="'pages.topics.intro.description' | t"
     ></app-section-heading>
 
     <div class="topics-grid">
-      @for (topic of topics; track topic.slug) {
+      @for (topic of topics(); track topic.slug) {
         <article class="topic-panel surface-card">
           <div class="topic-panel__header">
             <div>
-              <span class="tag">{{ topic.articleCount }} stories</span>
+              <span class="tag">{{ 'common.stories' | t: { count: topic.articleCount } }}</span>
               <h2>{{ topic.name }}</h2>
             </div>
             <p>{{ topic.summary }}</p>
@@ -27,7 +27,7 @@
 
           <div class="topic-panel__articles">
             @for (article of articlesFor(topic.slug); track article.slug) {
-              <a [routerLink]="['/articles', article.slug]">{{ article.title }}</a>
+              <a [routerLink]="localizedRouter.articlePath(article.slug)">{{ article.title }}</a>
             }
           </div>
         </article>
