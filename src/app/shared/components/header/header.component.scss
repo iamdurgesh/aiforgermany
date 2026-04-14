@@ -80,16 +80,19 @@
   background: rgba(255, 255, 255, 0.5);
 }
 
-.locale-switcher a {
+.locale-switcher button {
   padding: 0.45rem 0.7rem;
+  border: 0;
   border-radius: 999px;
   color: var(--text-secondary);
   font-size: 0.8rem;
   font-weight: 700;
   letter-spacing: 0.08em;
+  background: transparent;
+  cursor: pointer;
 }
 
-.locale-switcher a.is-active {
+.locale-switcher button.is-active {
   color: var(--text-primary);
   background: rgba(17, 56, 58, 0.12);
 }

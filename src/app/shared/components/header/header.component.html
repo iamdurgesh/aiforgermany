@@ -20,12 +20,14 @@
     <div class="site-header__actions">
       <div class="locale-switcher" [attr.aria-label]="'common.language' | t">
         @for (locale of locales; track locale.code) {
-          <a
-            [routerLink]="localizedRouter.switchLocalePath(locale.code)"
+          <button
+            type="button"
             [class.is-active]="localeService.currentLocale() === locale.code"
+            [attr.aria-pressed]="localeService.currentLocale() === locale.code"
+            (click)="switchLocale(locale.code)"
           >
             {{ locale.code.toUpperCase() }}
-          </a>
+          </button>
         }
       </div>
 
