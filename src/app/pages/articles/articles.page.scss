@@ -7,7 +7,7 @@
 
 .articles-grid {
   display: grid;
-  gap: 1.5rem;
+  gap: var(--space-6);
 }
 
 @media (min-width: 768px) {

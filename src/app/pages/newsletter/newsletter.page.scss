@@ -1,19 +1,19 @@
 .newsletter-page {
   display: grid;
-  gap: 2rem;
+  gap: var(--space-8);
 }
 
 .newsletter-page__panel,
 .newsletter-page__notes {
   display: grid;
-  gap: 2rem;
+  gap: var(--space-8);
   padding: clamp(1.5rem, 3vw, 2rem);
 }
 
 .newsletter-form {
   display: grid;
   gap: 1rem;
-  padding: 1.25rem;
+  padding: 1.4rem;
 }
 
 .newsletter-form label {
@@ -24,20 +24,17 @@
 .newsletter-form span {
   font-size: 0.9rem;
   font-weight: 700;
+  color: var(--text-secondary);
 }
 
 .newsletter-form input {
   min-height: 3rem;
   padding: 0.8rem 0.95rem;
-  color: var(--text-primary);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-sm);
-  background: rgba(255, 255, 255, 0.7);
 }
 
 .newsletter-page__notes h2 {
   margin: 0;
-  font-family: var(--font-serif);
+  font-family: var(--font-family-display);
   font-size: 1.6rem;
 }
 

@@ -1,13 +1,24 @@
 .topics-grid {
   display: grid;
-  gap: 1.5rem;
-  margin-top: 2rem;
+  gap: var(--space-6);
+  margin-top: var(--space-8);
 }
 
 .topic-panel {
+  position: relative;
   display: grid;
   gap: 1.25rem;
-  padding: 1.5rem;
+  padding: 1.6rem;
+  overflow: hidden;
+}
+
+.topic-panel::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 1px;
+  background: var(--gradient-brand);
+  opacity: 0.9;
 }
 
 .topic-panel__header {
@@ -17,7 +28,7 @@
 
 .topic-panel__header h2 {
   margin: 0.8rem 0 0;
-  font-family: var(--font-serif);
+  font-family: var(--font-family-heading);
   font-size: 1.75rem;
   letter-spacing: -0.03em;
 }
@@ -41,7 +52,8 @@
 .topic-panel__focus li {
   padding: 0.4rem 0.7rem;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.62);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.04);
   color: var(--text-secondary);
 }
 
@@ -51,7 +63,7 @@
 }
 
 .topic-panel__articles a {
-  color: var(--accent-strong);
+  color: var(--accent-warm-light);
   font-weight: 700;
 }
 
