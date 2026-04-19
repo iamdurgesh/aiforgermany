@@ -1,18 +1,31 @@
 .newsletter-cta {
+  position: relative;
   display: grid;
   gap: 1.5rem;
   align-items: center;
   padding: clamp(1.5rem, 3vw, 2rem);
+  overflow: hidden;
+}
+
+.newsletter-cta::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at right top, rgba(182, 146, 73, 0.14), transparent 32%),
+    radial-gradient(circle at left bottom, rgba(141, 32, 48, 0.16), transparent 34%);
+  pointer-events: none;
 }
 
 .newsletter-cta__content {
+  position: relative;
   display: grid;
   gap: 0.9rem;
 }
 
 .newsletter-cta__content h2 {
   margin: 0;
-  font-family: var(--font-serif);
+  font-family: var(--font-family-display);
   font-size: clamp(1.9rem, 3vw, 2.6rem);
   line-height: 1.05;
   letter-spacing: -0.03em;

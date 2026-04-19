@@ -1,0 +1,107 @@
+:root {
+  color-scheme: dark;
+
+  /* Palette: Charcoal / Brushed Gold / Crimson */
+  --bg-main: #090b0e;
+  --bg-elevated: #10141a;
+  --bg-surface: #161b22;
+  --bg-surface-strong: #1d242d;
+  --bg-soft: #232c37;
+  --bg-overlay: rgba(9, 11, 14, 0.78);
+
+  --border-subtle: #2d3642;
+  --border-soft: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.16);
+  --glass-bg: rgba(255, 255, 255, 0.045);
+  --glass-highlight: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.08) 0%,
+    rgba(255, 255, 255, 0.015) 100%
+  );
+
+  --accent-crimson: #8d2030;
+  --accent-crimson-soft: #b03c4d;
+  --accent-gold: #b69249;
+  --accent-gold-soft: #d3b36b;
+  --accent-warm-light: #f0ddae;
+
+  --text-primary: #f4f1ea;
+  --text-secondary: #c8d0d7;
+  --text-muted: #93a0ae;
+  --text-dark: #0e1217;
+  --text-inverse: #ffffff;
+
+  --success: #3f826c;
+  --warning: #b98334;
+  --danger: #ad4250;
+  --info: #4a7396;
+
+  --gradient-brand: linear-gradient(90deg, #8d2030 0%, #b69249 100%);
+  --gradient-hero:
+    radial-gradient(circle at 18% 20%, rgba(141, 32, 48, 0.28), transparent 34%),
+    radial-gradient(circle at 82% 24%, rgba(182, 146, 73, 0.22), transparent 28%),
+    linear-gradient(
+      180deg,
+      rgba(9, 11, 14, 0.28) 0%,
+      rgba(9, 11, 14, 0.7) 60%,
+      rgba(9, 11, 14, 0.94) 100%
+    );
+  --gradient-page:
+    radial-gradient(circle at top left, rgba(141, 32, 48, 0.16), transparent 28%),
+    radial-gradient(circle at right 20%, rgba(182, 146, 73, 0.13), transparent 24%),
+    linear-gradient(180deg, #090b0e 0%, #0d1116 44%, #090b0e 100%);
+  --gradient-surface: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.04) 0%,
+    rgba(255, 255, 255, 0.01) 100%
+  );
+
+  --shadow-soft: 0 16px 40px rgba(0, 0, 0, 0.28);
+  --shadow-elevated: 0 24px 70px rgba(0, 0, 0, 0.42);
+  --shadow-focus: 0 0 0 3px rgba(182, 146, 73, 0.22);
+
+  --radius-sm: 12px;
+  --radius-md: 18px;
+  --radius-lg: 24px;
+  --radius-xl: 32px;
+  --radius-pill: 999px;
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-14: 3.5rem;
+  --space-16: 4rem;
+  --space-20: 5rem;
+
+  --font-family-base: 'Avenir Next', 'Segoe UI', sans-serif;
+  --font-family-heading: 'Avenir Next', 'Helvetica Neue', sans-serif;
+  --font-family-display: 'Iowan Old Style', 'Palatino Linotype', 'Book Antiqua', Georgia, serif;
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-md: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 2rem;
+  --text-4xl: 2.75rem;
+  --text-5xl: 4.25rem;
+
+  --line-tight: 1.06;
+  --line-normal: 1.6;
+  --line-relaxed: 1.8;
+
+  --content-width: 1280px;
+  --content-narrow: 960px;
+  --navbar-height: 84px;
+
+  --transition-fast: 180ms ease;
+  --transition-medium: 280ms ease;
+  --transition-slow: 520ms ease;
+}

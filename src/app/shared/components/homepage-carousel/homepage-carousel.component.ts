@@ -8,7 +8,12 @@ import {
   inject,
   signal,
 } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { LocalizedRouterService } from '@core/i18n/localized-router.service';
+import { LocaleService } from '@core/i18n/locale.service';
+import { TranslatePipe } from '@core/i18n/translate.pipe';
 import { TranslateService } from '@core/i18n/translate.service';
+import { ContentService } from '@core/services/content.service';
 
 interface CarouselSlide {
   readonly title: string;
@@ -19,6 +24,7 @@ interface CarouselSlide {
 
 @Component({
   selector: 'app-homepage-carousel',
+  imports: [RouterLink, TranslatePipe],
   templateUrl: './homepage-carousel.component.html',
   styleUrl: './homepage-carousel.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -27,7 +33,10 @@ export class HomepageCarouselComponent {
   private readonly destroyRef = inject(DestroyRef);
   private readonly platformId = inject(PLATFORM_ID);
   private readonly translate = inject(TranslateService);
+  private readonly contentService = inject(ContentService);
+  private readonly localeService = inject(LocaleService);
 
+  protected readonly localizedRouter = inject(LocalizedRouterService);
   protected readonly currentIndex = signal(0);
   protected readonly slides = computed<readonly CarouselSlide[]>(() => [
     {
@@ -68,6 +77,9 @@ export class HomepageCarouselComponent {
     },
   ]);
   protected readonly activeSlide = computed(() => this.slides()[this.currentIndex()]);
+  protected readonly articleCount = computed(() => this.contentService.getArticles().length);
+  protected readonly topicCount = computed(() => this.contentService.getTopics().length);
+  protected readonly localeCount = this.localeService.availableLocales.length;
 
   constructor() {
     if (isPlatformBrowser(this.platformId)) {

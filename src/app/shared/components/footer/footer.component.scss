@@ -1,8 +1,19 @@
 .site-footer {
+  position: relative;
   margin-top: 4rem;
-  padding: 4rem 0 2rem;
-  color: rgba(255, 250, 244, 0.86);
-  background: var(--surface-dark);
+  padding: 4.5rem 0 2rem;
+  color: rgba(244, 241, 234, 0.86);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.015), rgba(255, 255, 255, 0)), #07090c;
+  border-top: 1px solid var(--border-soft);
+}
+
+.site-footer::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 1px;
+  background: var(--gradient-brand);
+  opacity: 0.7;
 }
 
 .site-footer__grid {
@@ -14,19 +25,20 @@
   margin: 0.85rem 0;
   max-width: 20ch;
   color: #fff;
-  font-family: var(--font-serif);
+  font-family: var(--font-family-display);
   font-size: clamp(1.8rem, 3vw, 2.5rem);
-  line-height: 1.05;
+  line-height: 1.02;
 }
 
 .site-footer__brand p:last-child {
   max-width: 42ch;
+  color: var(--text-secondary);
   line-height: 1.75;
 }
 
 .site-footer h3 {
   margin: 0 0 1rem;
-  color: #fff;
+  color: var(--accent-warm-light);
   font-size: 0.95rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -42,7 +54,11 @@
 
 .site-footer li,
 .site-footer a {
-  color: rgba(255, 250, 244, 0.75);
+  color: rgba(244, 241, 234, 0.72);
+}
+
+.site-footer a:hover {
+  color: #fff;
 }
 
 .site-footer__bottom {
@@ -52,7 +68,8 @@
   gap: 1rem;
   margin-top: 2.5rem;
   padding-top: 1.5rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text-muted);
   font-size: 0.9rem;
 }
 

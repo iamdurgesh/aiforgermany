@@ -17,16 +17,70 @@
     }
   </div>
 
-  <div class="hero-carousel__controls" aria-label="Homepage carousel navigation" role="tablist">
-    @for (slide of slides(); track slide.image; let index = $index) {
-      <button
-        type="button"
-        class="hero-carousel__dot"
-        [class.is-active]="index === currentIndex()"
-        [attr.aria-label]="slide.title"
-        [attr.aria-selected]="index === currentIndex()"
-        (click)="setCurrentIndex(index)"
-      ></button>
-    }
+  <div class="container hero-carousel__content">
+    <div class="hero-carousel__copy surface-glass">
+      <p class="eyebrow">{{ 'pages.home.hero.eyebrow' | t }}</p>
+      <h1 class="display-title">{{ 'pages.home.hero.title' | t }}</h1>
+      <p class="lead">{{ 'pages.home.hero.description' | t }}</p>
+
+      <div class="hero-carousel__actions">
+        <a class="button button-premium" [routerLink]="localizedRouter.path('articles')">
+          {{ 'pages.home.hero.latestCoverage' | t }}
+        </a>
+        <a class="button button-secondary" [routerLink]="localizedRouter.path('topics')">
+          {{ 'pages.home.hero.exploreTopics' | t }}
+        </a>
+      </div>
+    </div>
+
+    <aside class="hero-carousel__signal surface-glass" aria-live="polite">
+      <span class="hero-carousel__signal-label">{{ 'pages.home.hero.readyValue' | t }}</span>
+      <h2>{{ activeSlide().title }}</h2>
+      <p>{{ activeSlide().subtitle }}</p>
+
+      <div class="hero-carousel__signal-grid">
+        <article>
+          <span>{{ 'pages.home.topics.eyebrow' | t }}</span>
+          <p>{{ 'pages.home.hero.coverageAreas' | t }}</p>
+        </article>
+
+        <article>
+          <span>{{ 'pages.home.editorialDirection.eyebrow' | t }}</span>
+          <p>{{ 'pages.home.hero.scalableFoundation' | t }}</p>
+        </article>
+      </div>
+    </aside>
+  </div>
+
+  <div class="container hero-carousel__footer">
+    <div class="hero-carousel__metrics surface-glass">
+      <article class="hero-carousel__metric">
+        <strong>{{ articleCount() }}</strong>
+        <span>{{ 'navigation.articles' | t }}</span>
+      </article>
+
+      <article class="hero-carousel__metric">
+        <strong>{{ topicCount() }}</strong>
+        <span>{{ 'navigation.topics' | t }}</span>
+      </article>
+
+      <article class="hero-carousel__metric">
+        <strong>{{ localeCount }}</strong>
+        <span>{{ 'common.language' | t }}</span>
+      </article>
+    </div>
+
+    <div class="hero-carousel__controls" aria-label="Homepage carousel navigation" role="tablist">
+      @for (slide of slides(); track slide.image; let index = $index) {
+        <button
+          type="button"
+          class="hero-carousel__dot"
+          [class.is-active]="index === currentIndex()"
+          [attr.aria-label]="slide.title"
+          [attr.aria-selected]="index === currentIndex()"
+          (click)="setCurrentIndex(index)"
+        ></button>
+      }
+    </div>
   </div>
 </div>

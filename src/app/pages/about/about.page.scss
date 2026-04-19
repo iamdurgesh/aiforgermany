@@ -1,17 +1,17 @@
 .about-page {
   display: grid;
-  gap: 2rem;
+  gap: var(--space-8);
 }
 
 .about-page__panel {
   display: grid;
-  gap: 2rem;
+  gap: var(--space-8);
   padding: clamp(1.5rem, 3vw, 2rem);
 }
 
 .about-page__principles h2 {
   margin: 0 0 1rem;
-  font-family: var(--font-serif);
+  font-family: var(--font-family-display);
   font-size: 1.6rem;
 }
 
