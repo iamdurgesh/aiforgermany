@@ -1,7 +1,7 @@
 :root {
   color-scheme: dark;
 
-  /* Palette: Charcoal / Brushed Gold / Crimson */ 
+  /* Palette: Charcoal / Brushed Gold / Crimson */
   --bg-main: #090b0e;
   --bg-elevated: #10141a;
   --bg-surface: #161b22;
@@ -19,17 +19,17 @@
     rgba(255, 255, 255, 0.015) 100%
   );
 
-  --text-primary: #f4f1ea;
-  --text-secondary: #c8d0d7;
-  --text-muted: #93a0ae;
-  --text-dark: #0e1217;
-  --text-inverse: #ffffff;
-
   --accent-crimson: #8d2030;
   --accent-crimson-soft: #b03c4d;
   --accent-gold: #b69249;
   --accent-gold-soft: #d3b36b;
   --accent-warm-light: #f0ddae;
+
+  --text-primary: #f4f1ea;
+  --text-secondary: #c8d0d7;
+  --text-muted: #93a0ae;
+  --text-dark: #0e1217;
+  --text-inverse: #ffffff;
 
   --success: #3f826c;
   --warning: #b98334;
