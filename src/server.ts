@@ -8,10 +8,13 @@ import express from 'express';
 import { join } from 'node:path';
 import { siteConfig } from './app/core/config/site.config';
 import { getLocaleFromPath, resolveRequestLocale, toLocalizedPath } from './app/core/i18n/locale.utils';
+import { getEnvironment } from './backend/config/environment';
+import { createApiRouter } from './backend/http/api.routes';
 
 const browserDistFolder = join(import.meta.dirname, '../browser');
 const canonicalSiteUrl = new URL(siteConfig.siteUrl);
-const isProduction = process.env['NODE_ENV'] === 'production';
+const environment = getEnvironment();
+const isProduction = environment.isProduction;
 const requestBodyLimit = '100kb';
 
 const app = express();
@@ -77,17 +80,7 @@ app.use((req, res, next) => {
   return res.redirect(308, `${localizedPath}${query}`);
 });
 
-/**
- * Example Express Rest API endpoints can be defined here.
- * Uncomment and define endpoints as necessary.
- *
- * Example:
- * ```ts
- * app.get('/api/{*splat}', (req, res) => {
- *   // Handle API request
- * });
- * ```
- */
+app.use('/api', createApiRouter(environment));
 
 /**
  * Serve static files from /browser
@@ -127,7 +120,7 @@ app.use((error: unknown, _req: express.Request, res: express.Response, _next: ex
  * The server listens on the port defined by the `PORT` environment variable, or defaults to 4000.
  */
 if (isMainModule(import.meta.url) || process.env['pm_id']) {
-  const port = process.env['PORT'] || 4000;
+  const port = environment.port;
   app.listen(port, (error) => {
     if (error) {
       throw error;
