@@ -11,7 +11,6 @@ npm run start:dev
 Production build with SSR output:
 
 ```bash
-npm run build
 npm run serve:ssr
 ```
 
