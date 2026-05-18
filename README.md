@@ -9,7 +9,6 @@ npm run start:dev
 ```
 
 Production build with SSR output:
-
 ```bash
 npm run serve:ssr
 ```
