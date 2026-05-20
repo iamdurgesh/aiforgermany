@@ -49,7 +49,6 @@ Available endpoints:
 
 - `GET /api/health`
 - `POST /api/newsletter/subscribe`
-
 The newsletter endpoint validates email, explicit consent, consent version, and privacy policy version. It is rate-limited and currently returns `503` until a newsletter provider is configured.
 
 Copy `.env.example` to your deployment environment and configure secrets there. Do not expose backend environment variables to Angular/browser code.
