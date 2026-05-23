@@ -7,7 +7,6 @@ AI insights and analysis on how artificial intelligence is transforming Germanyâ
 npm install
 npm run start:dev
 ```
-
 Production build with SSR output:
 ```bash
 npm run serve:ssr
