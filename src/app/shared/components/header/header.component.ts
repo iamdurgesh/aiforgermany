@@ -21,16 +21,10 @@ export class HeaderComponent {
   protected readonly locales = this.localeService.availableLocales;
 
   protected switchLocale(locale: AppLocale): void {
-    const previousLocale = this.localeService.currentLocale();
-
-    if (previousLocale === locale) {
+    if (this.localeService.currentLocale() === locale) {
       return;
     }
 
-    this.localeService.setLocale(locale);
-
-    void this.router.navigateByUrl(this.localizedRouter.switchLocalePath(locale)).catch(() => {
-      this.localeService.setLocale(previousLocale);
-    });
+    void this.router.navigateByUrl(this.localizedRouter.switchLocalePath(locale));
   }
 }

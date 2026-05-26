@@ -8,20 +8,33 @@ import { resolveTranslation, TranslationKey } from './translations';
 })
 export class TranslateService {
   private readonly localeService = inject(LocaleService);
+  private readonly cache = new Map<string, string>();
 
   readonly locale = this.localeService.currentLocale;
 
   t(key: TranslationKey, params?: Record<string, string | number>): string {
-    const template = resolveTranslation(this.locale(), key);
+    const locale = this.locale();
+    const cacheKey = params
+      ? `${locale}:${key}:${JSON.stringify(params)}`
+      : `${locale}:${key}`;
 
-    if (!params) {
-      return template;
+    const cached = this.cache.get(cacheKey);
+
+    if (cached) {
+      return cached;
     }
 
-    return Object.entries(params).reduce(
-      (message, [token, value]) => message.replaceAll(`{${token}}`, String(value)),
-      template
-    );
+    const template = resolveTranslation(locale, key);
+
+    const resolved = !params
+      ? template
+      : Object.entries(params).reduce(
+          (message, [token, value]) => message.replaceAll(`{${token}}`, String(value)),
+          template
+        );
+
+    this.cache.set(cacheKey, resolved);
+    return resolved;
   }
 
   stories(count: number): string {

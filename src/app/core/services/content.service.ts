@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, computed, inject } from '@angular/core';
 import { articlesData } from '@content/articles.data';
 import { topicsData } from '@content/topics.data';
 import { LocaleService } from '@core/i18n/locale.service';
@@ -9,10 +9,12 @@ import { Topic } from '@core/models/topic.model';
   providedIn: 'root'
 })
 export class ContentService {
-  constructor(private readonly localeService: LocaleService) {}
+  private readonly localeService = inject(LocaleService);
+  private readonly articles = computed(() => articlesData[this.localeService.currentLocale()]);
+  private readonly topics = computed(() => topicsData[this.localeService.currentLocale()]);
 
   getArticles(): Article[] {
-    return [...articlesData[this.localeService.currentLocale()]];
+    return this.articles();
   }
 
   getFeaturedArticles(limit = 3): Article[] {
@@ -35,6 +37,6 @@ export class ContentService {
   }
 
   getTopics(): Topic[] {
-    return [...topicsData[this.localeService.currentLocale()]];
+    return this.topics();
   }
 }
