@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(rm -rf src/app src/styles dist out-tsc .angular)"
+    ],
+    "additionalDirectories": [
+      "/Users/iamdurgesh/Desktop/AIforGermany/aiforgermany/src/app"
+    ]
+  }
+}
