@@ -5,7 +5,13 @@ import angular from 'angular-eslint';
 
 export default tseslint.config(
   {
-    ignores: ['dist/', '.angular/', '.wrangler/', 'coverage/'],
+    ignores: [
+      'dist/',
+      '.angular/',
+      '.wrangler/',
+      'coverage/',
+      'src/app/features/artikel/artikel.generated.ts',
+    ],
   },
   {
     files: ['**/*.ts'],

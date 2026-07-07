@@ -1,0 +1,142 @@
+/**
+ * Build-time content pipeline (WORKING MAP §2: Git is the CMS).
+ *
+ * Reads /content/artikel/*.md (frontmatter + Markdown), validates them, and
+ * generates:
+ *   - src/app/features/artikel/artikel.generated.ts  (typed article constant)
+ *   - public/sitemap.xml                             (all indexable routes)
+ *
+ * Runs automatically via the pre-hooks of build/start/test/typecheck.
+ * Fails the build on missing or invalid frontmatter — broken content must
+ * never reach production silently.
+ */
+import { readdir, readFile, writeFile, mkdir } from 'node:fs/promises';
+import { dirname, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { marked } from 'marked';
+
+const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+const CONTENT_DIR = join(ROOT, 'content', 'artikel');
+const GENERATED_FILE = join(ROOT, 'src', 'app', 'features', 'artikel', 'artikel.generated.ts');
+const SITEMAP_FILE = join(ROOT, 'public', 'sitemap.xml');
+
+const SITE_URL = 'https://aiforgermany.de';
+
+// Statische, indexierbare Routen. Muss zu src/app/app.routes.ts passen.
+const STATIC_ROUTES = [
+  '',
+  'artikel',
+  'glossar',
+  'schnellcheck',
+  'newsletter',
+  'ueber',
+  'impressum',
+  'datenschutz',
+];
+
+const REQUIRED_FIELDS = ['title', 'description', 'date', 'keywords'];
+
+/** Minimal frontmatter parser: `key: value` lines between two `---` fences. */
+function parseFrontmatter(raw, file) {
+  const match = raw.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/);
+  if (!match) {
+    throw new Error(`${file}: Frontmatter-Block (--- ... ---) fehlt.`);
+  }
+  const [, head, body] = match;
+  const data = {};
+  for (const line of head.split(/\r?\n/)) {
+    if (!line.trim()) continue;
+    const sep = line.indexOf(':');
+    if (sep === -1) {
+      throw new Error(`${file}: ungültige Frontmatter-Zeile: "${line}"`);
+    }
+    data[line.slice(0, sep).trim()] = line.slice(sep + 1).trim();
+  }
+  for (const field of REQUIRED_FIELDS) {
+    if (!data[field]) {
+      throw new Error(`${file}: Pflichtfeld "${field}" fehlt im Frontmatter.`);
+    }
+  }
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(data.date)) {
+    throw new Error(`${file}: "date" muss das Format YYYY-MM-DD haben.`);
+  }
+  if (data.description.length > 160) {
+    throw new Error(`${file}: "description" ist länger als 160 Zeichen (SEO-Vorgabe).`);
+  }
+  return { data, body };
+}
+
+async function loadArticles() {
+  const files = (await readdir(CONTENT_DIR)).filter((f) => f.endsWith('.md')).sort();
+  const articles = [];
+  for (const file of files) {
+    const raw = await readFile(join(CONTENT_DIR, file), 'utf8');
+    const { data, body } = parseFrontmatter(raw, file);
+    const slug = file.replace(/\.md$/, '');
+    articles.push({
+      slug,
+      title: data.title,
+      description: data.description,
+      date: data.date,
+      keywords: data.keywords
+        .split(',')
+        .map((k) => k.trim())
+        .filter(Boolean),
+      html: await marked.parse(body, { gfm: true }),
+    });
+  }
+  return articles.sort((a, b) => b.date.localeCompare(a.date));
+}
+
+function renderGeneratedTs(articles) {
+  const records = articles
+    .map(
+      (a) => `  {
+    slug: ${JSON.stringify(a.slug)},
+    title: ${JSON.stringify(a.title)},
+    description: ${JSON.stringify(a.description)},
+    date: ${JSON.stringify(a.date)},
+    keywords: ${JSON.stringify(a.keywords)},
+    html: ${JSON.stringify(a.html)},
+  },`,
+    )
+    .join('\n');
+  return `// AUTOGENERIERT durch tools/build-content.mjs — NICHT von Hand bearbeiten.
+// Quelle: /content/artikel/*.md
+import { Artikel } from './artikel.model';
+
+export const ARTIKEL: readonly Artikel[] = [
+${records}
+] as const;
+`;
+}
+
+function renderSitemap(articles, buildDate) {
+  const urls = [
+    ...STATIC_ROUTES.map((route) => ({
+      loc: route ? `${SITE_URL}/${route}` : `${SITE_URL}/`,
+      lastmod: buildDate,
+    })),
+    ...articles.map((a) => ({ loc: `${SITE_URL}/artikel/${a.slug}`, lastmod: a.date })),
+  ];
+  const entries = urls
+    .map((u) => `  <url>\n    <loc>${u.loc}</loc>\n    <lastmod>${u.lastmod}</lastmod>\n  </url>`)
+    .join('\n');
+  return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${entries}\n</urlset>\n`;
+}
+
+const articles = await loadArticles();
+const slugs = new Set(articles.map((a) => a.slug));
+if (slugs.size !== articles.length) {
+  throw new Error('Doppelte Artikel-Slugs gefunden.');
+}
+
+await mkdir(dirname(GENERATED_FILE), { recursive: true });
+await writeFile(GENERATED_FILE, renderGeneratedTs(articles));
+await writeFile(SITEMAP_FILE, renderSitemap(articles, new Date().toISOString().slice(0, 10)));
+
+console.log(
+  `Content-Pipeline: ${articles.length} Artikel generiert, Sitemap mit ${
+    STATIC_ROUTES.length + articles.length
+  } URLs geschrieben.`,
+);

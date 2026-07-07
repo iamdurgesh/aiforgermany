@@ -8,7 +8,9 @@
   "main": "./dist/server/server.mjs",
   "assets": {
     "binding": "ASSETS",
-    "directory": "dist/browser"
+    "directory": "dist/browser",
+    // Kanonische URLs ohne Trailing Slash (muss zu canonical/sitemap passen)
+    "html_handling": "drop-trailing-slash"
   },
   "compatibility_flags": [
     "nodejs_compat"
