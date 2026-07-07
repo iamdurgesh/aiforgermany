@@ -21,26 +21,31 @@
           "builder": "@angular/build:application",
           "options": {
             "browser": "src/main.ts",
+            "server": "src/main.server.ts",
+            "outputMode": "server",
+            "ssr": {
+              "entry": "src/server.ts",
+              "platform": "neutral"
+            },
+            "security": {
+              "allowedHosts": [
+                "aiforgermany.de",
+                "www.aiforgermany.de",
+                "*.workers.dev",
+                "localhost",
+                "127.0.0.1"
+              ]
+            },
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
             "assets": [
               {
                 "glob": "**/*",
-                "input": "public"
+                "input": "public",
+                "ignore": ["**/.DS_Store"]
               }
             ],
-            "styles": [
-              "src/styles.scss"
-            ],
-            "server": "src/main.server.ts",
-            "outputMode": "server",
-            "security": {
-              "allowedHosts": []
-            },
-            "ssr": {
-              "entry": "src/server.ts",
-              "experimentalPlatform": "neutral"
-            },
+            "styles": ["src/styles.scss"],
             "outputPath": "dist"
           },
           "configurations": {
