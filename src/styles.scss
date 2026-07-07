@@ -103,6 +103,52 @@ textarea {
   border: 0;
 }
 
+// Inhaltsseiten (Recht, Über, Artikel)
+.page {
+  max-width: var(--width-prose);
+  margin-inline: auto;
+  padding-inline: var(--space-4);
+  padding-block: var(--space-7);
+
+  h1 {
+    margin-bottom: var(--space-5);
+  }
+
+  h2 {
+    margin-top: var(--space-6);
+    margin-bottom: var(--space-3);
+  }
+
+  h3 {
+    margin-top: var(--space-5);
+    margin-bottom: var(--space-2);
+  }
+
+  p,
+  ul,
+  ol {
+    margin-bottom: var(--space-4);
+  }
+
+  ul,
+  ol {
+    padding-left: 1.25rem;
+  }
+
+  li + li {
+    margin-top: var(--space-1);
+  }
+}
+
+// Vom Betreiber zu ergänzende Angaben — bewusst auffällig (WORKING MAP §6)
+.ausfuellen {
+  background: var(--color-risk-yellow-bg);
+  color: inherit;
+  padding: 0 var(--space-1);
+  border-radius: 3px;
+  font-style: normal;
+}
+
 .skip-link {
   position: absolute;
   top: -100%;
