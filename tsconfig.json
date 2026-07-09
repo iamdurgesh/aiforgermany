@@ -3,6 +3,7 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
+    "ignoreDeprecations": "6.0",
     "strict": true,
     "noImplicitOverride": true,
     "noPropertyAccessFromIndexSignature": true,
@@ -19,11 +20,11 @@
       "@app/*": [
         "src/app/*"
       ],
-      "@content/*": [
-        "src/app/content/*"
-      ],
       "@core/*": [
         "src/app/core/*"
+      ],
+      "@features/*": [
+        "src/app/features/*"
       ],
       "@shared/*": [
         "src/app/shared/*"
