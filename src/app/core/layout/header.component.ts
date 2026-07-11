@@ -35,8 +35,21 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
   `,
   styles: `
     .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
       border-bottom: 1px solid var(--color-border);
-      background: var(--color-bg);
+      background: rgb(255 255 255 / 0.86);
+      backdrop-filter: blur(10px) saturate(1.4);
+      -webkit-backdrop-filter: blur(10px) saturate(1.4);
+
+      // Trikolore-Linie (Markenmotiv)
+      &::before {
+        content: '';
+        display: block;
+        height: 3px;
+        background: var(--verlauf-trikolore);
+      }
     }
 
     .site-header__inner {
@@ -45,13 +58,22 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
       align-items: center;
       justify-content: space-between;
       gap: var(--space-3) var(--space-5);
-      padding-block: var(--space-3);
+      padding-block: var(--space-2);
+    }
+
+    .site-header__logo-link {
+      display: block;
+      transition: transform var(--dauer-schnell) var(--ease-out);
+
+      &:hover {
+        transform: scale(1.03);
+      }
     }
 
     .site-header__logo {
       display: block;
       width: auto;
-      height: 3.5rem;
+      height: 4.75rem;
     }
 
     .site-header__nav {
@@ -61,18 +83,42 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
       list-style: none;
 
       a {
+        position: relative;
         color: var(--color-text);
         text-decoration: none;
-        font-weight: 500;
-        padding-block: var(--space-1);
+        font-weight: 550;
+        font-size: var(--text-sm);
+        letter-spacing: 0.01em;
+        padding-block: var(--space-2);
+        transition: color var(--dauer-schnell) var(--ease-out);
+
+        // animierte Unterstreichung
+        &::after {
+          content: '';
+          position: absolute;
+          left: 0;
+          right: 100%;
+          bottom: 0;
+          height: 2px;
+          background: var(--color-accent);
+          border-radius: 2px;
+          transition: right var(--dauer-normal) var(--ease-out);
+        }
 
         &:hover {
           color: var(--color-accent);
+
+          &::after {
+            right: 0;
+          }
         }
 
         &.is-active {
           color: var(--color-accent);
-          box-shadow: 0 2px 0 0 var(--color-accent);
+
+          &::after {
+            right: 0;
+          }
         }
       }
     }
