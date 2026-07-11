@@ -19,6 +19,26 @@ export const routes: Routes = [
       import('./features/artikel/artikel-detail.component').then((m) => m.ArtikelDetailComponent),
   },
   {
+    path: 'schnellcheck',
+    loadComponent: () =>
+      import('./features/schnellcheck/schnellcheck.component').then(
+        (m) => m.SchnellcheckComponent,
+      ),
+    title: 'KI-Act Schnellcheck — AI for Germany',
+  },
+  {
+    path: 'glossar',
+    loadComponent: () =>
+      import('./features/glossar/glossar.component').then((m) => m.GlossarComponent),
+    title: 'Glossar — AI for Germany',
+  },
+  {
+    path: 'newsletter',
+    loadComponent: () =>
+      import('./features/newsletter/newsletter.component').then((m) => m.NewsletterComponent),
+    title: 'Newsletter: KI-Regulierung in 5 Minuten — AI for Germany',
+  },
+  {
     path: 'ueber',
     loadComponent: () => import('./features/ueber/ueber.component').then((m) => m.UeberComponent),
     title: 'Über dieses Portal — AI for Germany',
