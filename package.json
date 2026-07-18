@@ -8,6 +8,7 @@
     "start": "ng serve",
     "prebuild": "npm run generate",
     "build": "ng build",
+    "postbuild": "node tools/build-csp.mjs",
     "lint": "eslint .",
     "pretypecheck": "npm run generate",
     "typecheck": "tsc -p tsconfig.app.json --noEmit",

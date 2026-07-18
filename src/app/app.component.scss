@@ -7,3 +7,51 @@
 .site-main {
   flex: 1;
 }
+
+.nach-oben {
+  position: fixed;
+  right: var(--space-5);
+  bottom: var(--space-5);
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 50%;
+  border: 1px solid var(--color-accent-line);
+  background: var(--color-bg);
+  color: var(--color-accent);
+  cursor: pointer;
+  box-shadow: var(--shadow-md);
+  transition:
+    transform var(--dauer-schnell) var(--ease-out),
+    box-shadow var(--dauer-schnell) var(--ease-out);
+
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lg);
+  }
+}
+
+// Erst nach etwas Scrollen einblenden — rein per CSS (progressive enhancement).
+// Browser ohne Scroll-Timelines zeigen den Knopf dauerhaft.
+@supports (animation-timeline: scroll()) {
+  @keyframes nach-oben-zeigen {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+      pointer-events: none;
+    }
+    4%,
+    to {
+      opacity: 1;
+      transform: none;
+      pointer-events: auto;
+    }
+  }
+
+  .nach-oben {
+    animation: nach-oben-zeigen linear both;
+    animation-timeline: scroll();
+  }
+}

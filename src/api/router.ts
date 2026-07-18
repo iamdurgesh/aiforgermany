@@ -30,11 +30,10 @@ function istRateLimitiert(ip: string): boolean {
 export async function handleApi(request: CfRequest, env: Env): Promise<Response> {
   const { pathname } = new URL(request.url);
 
-  if (request.method === 'POST') {
-    const ip = request.headers.get('cf-connecting-ip') ?? 'unbekannt';
-    if (istRateLimitiert(ip)) {
-      return jsonAntwort(429, { fehler: 'Zu viele Anfragen. Bitte später erneut versuchen.' });
-    }
+  // Alle API-Methoden limitieren — auch GET /api/confirm löst DB-Zugriffe aus.
+  const ip = request.headers.get('cf-connecting-ip') ?? 'unbekannt';
+  if (istRateLimitiert(ip)) {
+    return jsonAntwort(429, { fehler: 'Zu viele Anfragen. Bitte später erneut versuchen.' });
   }
 
   try {
