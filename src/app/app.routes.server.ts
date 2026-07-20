@@ -1,8 +1,8 @@
 import { PrerenderFallback, RenderMode, ServerRoute } from '@angular/ssr';
 
 /**
- * Statische Routen, die beim Build als HTML prerendert werden.
- * Muss zu src/app/app.routes.ts und tools/build-content.mjs passen.
+ * Static routes that are prerendered to HTML at build time.
+ * Must match src/app/app.routes.ts and tools/build-content.mjs.
  */
 const staticPrerenderPaths = [
   '',
@@ -24,11 +24,11 @@ export const serverRoutes: ServerRoute[] = [
     renderMode: RenderMode.Prerender,
     fallback: PrerenderFallback.Server,
     async getPrerenderParams() {
-      const { ARTIKEL } = await import('./features/artikel/artikel.generated');
-      return ARTIKEL.map(({ slug }) => ({ slug }));
+      const { ARTICLES } = await import('./features/artikel/artikel.generated');
+      return ARTICLES.map(({ slug }) => ({ slug }));
     },
   },
-  // Unbekannte URLs werden serverseitig mit Status 404 gerendert (echtes 404,
-  // kein Soft-404 für Suchmaschinen).
+  // Unknown URLs are rendered server-side with status 404 (a real 404,
+  // no soft 404 for search engines).
   { path: '**', renderMode: RenderMode.Server, status: 404 },
 ];

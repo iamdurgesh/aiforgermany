@@ -5,7 +5,7 @@ import { RouterLink } from '@angular/router';
   selector: 'app-not-found',
   imports: [RouterLink],
   template: `
-    <div class="page einblenden">
+    <div class="page fade-in">
       <p class="code" aria-hidden="true">404</p>
       <h1>Seite nicht gefunden</h1>
       <p>

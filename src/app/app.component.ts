@@ -14,8 +14,8 @@ import { HeaderComponent } from './core/layout/header.component';
 export class AppComponent {
   private readonly document = inject(DOCUMENT);
 
-  /** Scrollt zum Seitenanfang; Tempo folgt `scroll-behavior` (reduced motion: sofort). */
-  protected nachOben(): void {
+  /** Scrolls to the top of the page; speed follows `scroll-behavior` (reduced motion: instant). */
+  protected scrollToTop(): void {
     this.document.defaultView?.scrollTo({ top: 0 });
   }
 }

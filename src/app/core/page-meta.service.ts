@@ -4,18 +4,18 @@ import { Meta, Title } from '@angular/platform-browser';
 import { SITE_NAME, SITE_URL } from './site';
 
 export interface PageMeta {
-  /** Vollständiger Titel inkl. Portal-Suffix. */
+  /** Full title incl. portal suffix. */
   title: string;
   description: string;
-  /** Pfad ab Root, z. B. `/artikel/schatten-ki-erkennen`. */
+  /** Path from root, e.g. `/artikel/schatten-ki-erkennen`. */
   path: string;
   ogType?: 'website' | 'article';
 }
 
 /**
- * Setzt Titel, Meta-Description, Canonical-Link und OG-Tags pro Route
- * (WORKING MAP §3: Meta/OG je Route). Wird von den Seiten-Komponenten im
- * Konstruktor aufgerufen und wirkt damit auch beim Prerendering.
+ * Sets title, meta description, canonical link, and OG tags per route
+ * (WORKING MAP §3: meta/OG per route). Called by the page components in
+ * their constructor, so it also takes effect during prerendering.
  */
 @Injectable({ providedIn: 'root' })
 export class PageMetaService {
@@ -36,7 +36,7 @@ export class PageMetaService {
     this.setCanonical(url);
   }
 
-  /** Ersetzt das JSON-LD-Skript der Seite (z. B. Article-Schema). */
+  /** Replaces the page's JSON-LD script (e.g. Article schema). */
   setJsonLd(data: Record<string, unknown>): void {
     const id = 'page-json-ld';
     this.document.getElementById(id)?.remove();

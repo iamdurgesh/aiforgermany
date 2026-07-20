@@ -12,27 +12,27 @@ import { RouterLink } from '@angular/router';
 
 import { PageMetaService } from '../../core/page-meta.service';
 import { SITE_URL } from '../../core/site';
-import { ARTIKEL } from './artikel.generated';
+import { ARTICLES } from './artikel.generated';
 
 @Component({
   selector: 'app-artikel-detail',
   imports: [RouterLink, DatePipe],
   template: `
-    @if (artikel(); as a) {
-      <article class="page einblenden">
+    @if (article(); as a) {
+      <article class="page fade-in">
         <header>
           <time [dateTime]="a.date">{{ a.date | date: 'd. MMMM yyyy' }}</time>
           <h1>{{ a.title }}</h1>
-          <p class="autor">Redaktion AI for Germany</p>
-          <ul class="schlagworte" aria-label="Schlagworte">
-            @for (wort of a.keywords; track wort) {
-              <li>{{ wort }}</li>
+          <p class="author">Redaktion AI for Germany</p>
+          <ul class="keywords" aria-label="Schlagworte">
+            @for (keyword of a.keywords; track keyword) {
+              <li>{{ keyword }}</li>
             }
           </ul>
         </header>
         <div [innerHTML]="a.html"></div>
-        <footer class="artikel-fusszeile">
-          <a routerLink="/artikel" class="zurueck">← Alle Artikel</a>
+        <footer class="article-footer">
+          <a routerLink="/artikel" class="back">← Alle Artikel</a>
         </footer>
       </article>
     } @else {
@@ -66,13 +66,13 @@ import { ARTIKEL } from './artikel.generated';
       }
     }
 
-    .autor {
+    .author {
       color: var(--color-text-muted);
       font-size: var(--text-sm);
       margin: 0 0 var(--space-3);
     }
 
-    .schlagworte {
+    .keywords {
       list-style: none;
       padding: 0;
       margin: 0;
@@ -95,13 +95,13 @@ import { ARTIKEL } from './artikel.generated';
       }
     }
 
-    .artikel-fusszeile {
+    .article-footer {
       margin-top: var(--space-7);
       border-top: 1px solid var(--color-border);
       padding-top: var(--space-4);
     }
 
-    .zurueck {
+    .back {
       font-weight: 600;
       text-decoration: none;
 
@@ -117,11 +117,11 @@ export class ArtikelDetailComponent implements OnDestroy {
 
   private readonly pageMeta = inject(PageMetaService);
 
-  protected readonly artikel = computed(() => ARTIKEL.find((a) => a.slug === this.slug()));
+  protected readonly article = computed(() => ARTICLES.find((a) => a.slug === this.slug()));
 
   constructor() {
     effect(() => {
-      const a = this.artikel();
+      const a = this.article();
       if (!a) {
         return;
       }

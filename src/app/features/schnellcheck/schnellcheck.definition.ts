@@ -1,50 +1,47 @@
 /**
- * KI-Act Schnellcheck — datengetriebene Definition (WORKING MAP §4).
+ * KI-Act Schnellcheck — data-driven definition (WORKING MAP §4).
  *
- * Der gesamte Check ist EINE typisierte Konstante: Fragen, Antwortoptionen,
- * Punkte und Risiko-Flags. Der generische Renderer und die reine
- * Bewertungsfunktion arbeiten ausschließlich auf dieser Struktur — eine neue
- * Frage erfordert nur einen weiteren Eintrag hier, keine Komponentenänderung.
+ * The whole check is ONE typed constant: questions, answer options, points,
+ * and risk flags. The generic renderer and the pure scoring function operate
+ * exclusively on this structure — a new question only requires another entry
+ * here, no component change.
+ *
+ * Question and option ids are German slugs on purpose: they are content data,
+ * persisted in the database (answers_json) and referenced by the articles.
  */
 
-/** Risiko-Flags, die Antwortoptionen auslösen können. */
-export type RisikoFlag =
-  | 'anhang-i'
-  | 'anhang-iii'
-  | 'dsgvo'
-  | 'art-50'
-  | 'schatten-ki'
-  | 'kein-inventar'
-  | 'keine-richtlinie';
+/** Risk flags that answer options can trigger. */
+export type RiskFlag =
+  'annex-i' | 'annex-iii' | 'gdpr' | 'art-50' | 'shadow-ai' | 'no-inventory' | 'no-policy';
 
-export interface AntwortOption {
+export interface AnswerOption {
   readonly id: string;
   readonly text: string;
-  /** Risikopunkte dieser Antwort (Standard: 0). */
-  readonly punkte?: number;
-  readonly flags?: readonly RisikoFlag[];
+  /** Risk points of this answer (default: 0). */
+  readonly points?: number;
+  readonly flags?: readonly RiskFlag[];
 }
 
-export interface Frage {
+export interface Question {
   readonly id: string;
   readonly text: string;
-  /** Optionale Erläuterung unter der Frage. */
-  readonly hinweis?: string;
-  readonly typ: 'single' | 'multi';
-  readonly optionen: readonly AntwortOption[];
+  /** Optional explanation shown below the question. */
+  readonly hint?: string;
+  readonly type: 'single' | 'multi';
+  readonly options: readonly AnswerOption[];
 }
 
 export interface CheckDefinition {
   readonly disclaimer: string;
-  readonly fragen: readonly Frage[];
+  readonly questions: readonly Question[];
 }
 
-/** Antworten: Frage-Id → gewählte Options-Ids (bei `single` genau eine). */
-export type Antworten = Readonly<Record<string, readonly string[]>>;
+/** Answers: question id → selected option ids (exactly one for `single`). */
+export type Answers = Readonly<Record<string, readonly string[]>>;
 
 /**
- * PFLICHT-Disclaimer (Rechtsdienstleistungsgesetz): sichtbar vor dem Start
- * und im Ergebnis. Formulierung nicht abschwächen (WORKING MAP §4/§10).
+ * MANDATORY disclaimer (German Legal Services Act): visible before the start
+ * and in the result. Do not soften the wording (WORKING MAP §4/§10).
  */
 export const SCHNELLCHECK_DISCLAIMER =
   'Der Schnellcheck bietet eine unverbindliche erste Orientierung und ersetzt keine ' +
@@ -53,12 +50,12 @@ export const SCHNELLCHECK_DISCLAIMER =
 
 export const SCHNELLCHECK: CheckDefinition = {
   disclaimer: SCHNELLCHECK_DISCLAIMER,
-  fragen: [
+  questions: [
     {
       id: 'mitarbeitende',
       text: 'Wie viele Mitarbeitende hat Ihr Unternehmen?',
-      typ: 'single',
-      optionen: [
+      type: 'single',
+      options: [
         { id: 'bis-99', text: 'Weniger als 100' },
         { id: '100-499', text: '100 bis 499' },
         { id: '500-1999', text: '500 bis 1.999' },
@@ -68,94 +65,94 @@ export const SCHNELLCHECK: CheckDefinition = {
     {
       id: 'ki-tools',
       text: 'Nutzen Mitarbeitende KI-Tools wie ChatGPT, Copilot oder DeepL?',
-      typ: 'single',
-      optionen: [
-        { id: 'ja-bewusst', text: 'Ja, bewusst und freigegeben', punkte: 2 },
-        { id: 'vermutlich', text: 'Vermutlich ja, ohne Freigabe', punkte: 3, flags: ['schatten-ki'] },
+      type: 'single',
+      options: [
+        { id: 'ja-bewusst', text: 'Ja, bewusst und freigegeben', points: 2 },
+        { id: 'vermutlich', text: 'Vermutlich ja, ohne Freigabe', points: 3, flags: ['shadow-ai'] },
         { id: 'nein', text: 'Nein' },
-        { id: 'unbekannt', text: 'Unbekannt', punkte: 2, flags: ['schatten-ki'] },
+        { id: 'unbekannt', text: 'Unbekannt', points: 2, flags: ['shadow-ai'] },
       ],
     },
     {
       id: 'personalwesen',
       text: 'Setzen Sie KI im Personalwesen ein (z. B. Bewerber-Screening, Leistungsbewertung)?',
-      hinweis: 'Solche Anwendungen könnten unter Anhang III des EU AI Act fallen (Hochrisiko).',
-      typ: 'single',
-      optionen: [
-        { id: 'ja', text: 'Ja', punkte: 4, flags: ['anhang-iii'] },
-        { id: 'geplant', text: 'In Planung', punkte: 2 },
+      hint: 'Solche Anwendungen könnten unter Anhang III des EU AI Act fallen (Hochrisiko).',
+      type: 'single',
+      options: [
+        { id: 'ja', text: 'Ja', points: 4, flags: ['annex-iii'] },
+        { id: 'geplant', text: 'In Planung', points: 2 },
         { id: 'nein', text: 'Nein' },
       ],
     },
     {
       id: 'kredit-bonitaet',
       text: 'Setzen Sie KI bei Kreditvergabe, Versicherung oder Bonitätsprüfung ein?',
-      hinweis: 'Auch diese Anwendungen könnten unter Anhang III fallen (Hochrisiko).',
-      typ: 'single',
-      optionen: [
-        { id: 'ja', text: 'Ja', punkte: 4, flags: ['anhang-iii'] },
-        { id: 'geplant', text: 'In Planung', punkte: 2 },
+      hint: 'Auch diese Anwendungen könnten unter Anhang III fallen (Hochrisiko).',
+      type: 'single',
+      options: [
+        { id: 'ja', text: 'Ja', points: 4, flags: ['annex-iii'] },
+        { id: 'geplant', text: 'In Planung', points: 2 },
         { id: 'nein', text: 'Nein' },
       ],
     },
     {
       id: 'produktsicherheit',
       text: 'Nutzen Sie KI in Produkten mit Sicherheitsfunktion (z. B. Maschinen, Medizinprodukte)?',
-      hinweis: 'KI als Sicherheitskomponente regulierter Produkte fällt unter Anhang I — Frist: Dezember 2027.',
-      typ: 'single',
-      optionen: [
-        { id: 'ja', text: 'Ja', punkte: 4, flags: ['anhang-i'] },
-        { id: 'unsicher', text: 'Unsicher', punkte: 2 },
+      hint: 'KI als Sicherheitskomponente regulierter Produkte fällt unter Anhang I — Frist: Dezember 2027.',
+      type: 'single',
+      options: [
+        { id: 'ja', text: 'Ja', points: 4, flags: ['annex-i'] },
+        { id: 'unsicher', text: 'Unsicher', points: 2 },
         { id: 'nein', text: 'Nein' },
       ],
     },
     {
       id: 'personenbezogene-daten',
       text: 'Verarbeiten Ihre KI-Anwendungen personenbezogene Daten?',
-      typ: 'single',
-      optionen: [
-        { id: 'ja', text: 'Ja', punkte: 2, flags: ['dsgvo'] },
-        { id: 'unbekannt', text: 'Unbekannt', punkte: 2, flags: ['dsgvo'] },
+      type: 'single',
+      options: [
+        { id: 'ja', text: 'Ja', points: 2, flags: ['gdpr'] },
+        { id: 'unbekannt', text: 'Unbekannt', points: 2, flags: ['gdpr'] },
         { id: 'nein', text: 'Nein' },
       ],
     },
     {
       id: 'kundeninteraktion',
       text: 'Interagieren Kunden direkt mit KI (z. B. Chatbots, generierte Inhalte)?',
-      hinweis: 'Dann gelten voraussichtlich die Transparenzpflichten nach Art. 50 — bereits seit August 2026.',
-      typ: 'single',
-      optionen: [
-        { id: 'ja', text: 'Ja', punkte: 2, flags: ['art-50'] },
-        { id: 'geplant', text: 'In Planung', punkte: 1, flags: ['art-50'] },
+      hint: 'Dann gelten voraussichtlich die Transparenzpflichten nach Art. 50 — bereits seit August 2026.',
+      type: 'single',
+      options: [
+        { id: 'ja', text: 'Ja', points: 2, flags: ['art-50'] },
+        { id: 'geplant', text: 'In Planung', points: 1, flags: ['art-50'] },
         { id: 'nein', text: 'Nein' },
       ],
     },
     {
       id: 'inventar',
       text: 'Existiert ein Inventar aller KI-Systeme im Unternehmen?',
-      typ: 'single',
-      optionen: [
+      type: 'single',
+      options: [
         { id: 'ja', text: 'Ja' },
-        { id: 'teilweise', text: 'Teilweise', punkte: 1 },
-        { id: 'nein', text: 'Nein', punkte: 2, flags: ['kein-inventar'] },
+        { id: 'teilweise', text: 'Teilweise', points: 1 },
+        { id: 'nein', text: 'Nein', points: 2, flags: ['no-inventory'] },
       ],
     },
     {
       id: 'richtlinien',
       text: 'Gibt es interne KI-Richtlinien und Schulungen (KI-Kompetenz, Art. 4)?',
-      typ: 'single',
-      optionen: [
+      type: 'single',
+      options: [
         { id: 'ja', text: 'Ja' },
-        { id: 'teilweise', text: 'Teilweise', punkte: 1 },
-        { id: 'nein', text: 'Nein', punkte: 2, flags: ['keine-richtlinie'] },
+        { id: 'teilweise', text: 'Teilweise', points: 1 },
+        { id: 'nein', text: 'Nein', points: 2, flags: ['no-policy'] },
       ],
     },
     {
       id: 'branche',
       text: 'In welcher Branche sind Sie tätig?',
-      hinweis: 'Dient der Einordnung im E-Mail-Ergebnis.',
-      typ: 'single',
-      optionen: [
+      hint: 'Dient der Einordnung im E-Mail-Ergebnis.',
+      type: 'single',
+      options: [
         { id: 'industrie', text: 'Industrie / Produktion' },
         { id: 'handel', text: 'Handel' },
         { id: 'finanzen', text: 'Finanzen / Versicherung' },

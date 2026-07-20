@@ -8,7 +8,7 @@
   flex: 1;
 }
 
-.nach-oben {
+.back-to-top {
   position: fixed;
   right: var(--space-5);
   bottom: var(--space-5);
@@ -24,8 +24,8 @@
   cursor: pointer;
   box-shadow: var(--shadow-md);
   transition:
-    transform var(--dauer-schnell) var(--ease-out),
-    box-shadow var(--dauer-schnell) var(--ease-out);
+    transform var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out);
 
   &:hover {
     transform: translateY(-3px);
@@ -33,10 +33,10 @@
   }
 }
 
-// Erst nach etwas Scrollen einblenden — rein per CSS (progressive enhancement).
-// Browser ohne Scroll-Timelines zeigen den Knopf dauerhaft.
+// Only fade in after some scrolling — pure CSS (progressive enhancement).
+// Browsers without scroll timelines show the button permanently.
 @supports (animation-timeline: scroll()) {
-  @keyframes nach-oben-zeigen {
+  @keyframes back-to-top-reveal {
     from {
       opacity: 0;
       transform: translateY(12px);
@@ -50,8 +50,8 @@
     }
   }
 
-  .nach-oben {
-    animation: nach-oben-zeigen linear both;
+  .back-to-top {
+    animation: back-to-top-reveal linear both;
     animation-timeline: scroll();
   }
 }
