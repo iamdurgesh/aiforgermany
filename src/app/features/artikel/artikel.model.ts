@@ -1,11 +1,11 @@
-/** Ein Fachartikel, generiert aus /content/artikel/*.md (siehe tools/build-content.mjs). */
-export interface Artikel {
+/** An article, generated from /content/artikel/*.md (see tools/build-content.mjs). */
+export interface Article {
   readonly slug: string;
   readonly title: string;
   readonly description: string;
-  /** Veröffentlichungsdatum im Format YYYY-MM-DD. */
+  /** Publication date in YYYY-MM-DD format. */
   readonly date: string;
   readonly keywords: readonly string[];
-  /** Aus Markdown gerendertes HTML (nur eigene Inhalte aus dem Repo). */
+  /** HTML rendered from Markdown (only our own content from the repo). */
   readonly html: string;
 }

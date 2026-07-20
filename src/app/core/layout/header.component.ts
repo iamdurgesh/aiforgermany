@@ -43,12 +43,12 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
       backdrop-filter: blur(10px) saturate(1.4);
       -webkit-backdrop-filter: blur(10px) saturate(1.4);
 
-      // Trikolore-Linie (Markenmotiv)
+      // Tricolor line (brand motif)
       &::before {
         content: '';
         display: block;
         height: 3px;
-        background: var(--verlauf-trikolore);
+        background: var(--gradient-tricolor);
       }
     }
 
@@ -63,7 +63,7 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
 
     .site-header__logo-link {
       display: block;
-      transition: transform var(--dauer-schnell) var(--ease-out);
+      transition: transform var(--duration-fast) var(--ease-out);
 
       &:hover {
         transform: scale(1.03);
@@ -90,9 +90,9 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
         font-size: var(--text-sm);
         letter-spacing: 0.01em;
         padding-block: var(--space-2);
-        transition: color var(--dauer-schnell) var(--ease-out);
+        transition: color var(--duration-fast) var(--ease-out);
 
-        // animierte Unterstreichung
+        // animated underline
         &::after {
           content: '';
           position: absolute;
@@ -102,7 +102,7 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
           height: 2px;
           background: var(--color-accent);
           border-radius: 2px;
-          transition: right var(--dauer-normal) var(--ease-out);
+          transition: right var(--duration-normal) var(--ease-out);
         }
 
         &:hover {

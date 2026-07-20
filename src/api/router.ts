@@ -1,28 +1,28 @@
 import { CfRequest, Env } from './env';
 import { confirm, newsletter, schnellcheckResult } from './handlers';
-import { jsonAntwort } from './validation';
+import { jsonResponse } from './validation';
 
 /**
- * Best-Effort-Rate-Limit pro Worker-Isolate (WORKING MAP §6.9).
- * Hinweis: Auf Cloudflare zusätzlich eine zonenweite WAF-Rate-Limiting-Regel
- * für /api/* konfigurieren — dieses In-Memory-Limit schützt nur je Isolate.
+ * Best-effort rate limit per worker isolate (WORKING MAP §6.9).
+ * Note: On Cloudflare, additionally configure a zone-wide WAF rate-limiting
+ * rule for /api/* — this in-memory limit only protects per isolate.
  */
-const FENSTER_MS = 60_000;
-const MAX_POSTS_PRO_FENSTER = 10;
-const anfragen = new Map<string, number[]>();
+const WINDOW_MS = 60_000;
+const MAX_POSTS_PER_WINDOW = 10;
+const requestLog = new Map<string, number[]>();
 
-function istRateLimitiert(ip: string): boolean {
-  const jetzt = Date.now();
-  const bisher = (anfragen.get(ip) ?? []).filter((t) => jetzt - t < FENSTER_MS);
-  if (bisher.length >= MAX_POSTS_PRO_FENSTER) {
-    anfragen.set(ip, bisher);
+function isRateLimited(ip: string): boolean {
+  const now = Date.now();
+  const recent = (requestLog.get(ip) ?? []).filter((t) => now - t < WINDOW_MS);
+  if (recent.length >= MAX_POSTS_PER_WINDOW) {
+    requestLog.set(ip, recent);
     return true;
   }
-  bisher.push(jetzt);
-  anfragen.set(ip, bisher);
-  // Speicher begrenzen (alte Einträge räumen)
-  if (anfragen.size > 10_000) {
-    anfragen.clear();
+  recent.push(now);
+  requestLog.set(ip, recent);
+  // Cap memory usage (clear out old entries)
+  if (requestLog.size > 10_000) {
+    requestLog.clear();
   }
   return false;
 }
@@ -30,10 +30,10 @@ function istRateLimitiert(ip: string): boolean {
 export async function handleApi(request: CfRequest, env: Env): Promise<Response> {
   const { pathname } = new URL(request.url);
 
-  // Alle API-Methoden limitieren — auch GET /api/confirm löst DB-Zugriffe aus.
-  const ip = request.headers.get('cf-connecting-ip') ?? 'unbekannt';
-  if (istRateLimitiert(ip)) {
-    return jsonAntwort(429, { fehler: 'Zu viele Anfragen. Bitte später erneut versuchen.' });
+  // Rate-limit all API methods — GET /api/confirm also triggers DB access.
+  const ip = request.headers.get('cf-connecting-ip') ?? 'unknown';
+  if (isRateLimited(ip)) {
+    return jsonResponse(429, { error: 'Zu viele Anfragen. Bitte später erneut versuchen.' });
   }
 
   try {
@@ -46,10 +46,10 @@ export async function handleApi(request: CfRequest, env: Env): Promise<Response>
     if (pathname === '/api/confirm' && request.method === 'GET') {
       return await confirm(request, env);
     }
-  } catch (fehler) {
-    console.error('API-Fehler:', fehler);
-    return jsonAntwort(500, { fehler: 'Interner Fehler. Bitte später erneut versuchen.' });
+  } catch (error) {
+    console.error('API error:', error);
+    return jsonResponse(500, { error: 'Interner Fehler. Bitte später erneut versuchen.' });
   }
 
-  return jsonAntwort(404, { fehler: 'Unbekannter API-Endpunkt.' });
+  return jsonResponse(404, { error: 'Unbekannter API-Endpunkt.' });
 }

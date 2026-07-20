@@ -3,7 +3,7 @@ import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 import { PageMetaService } from '../../core/page-meta.service';
-import { ARTIKEL } from '../artikel/artikel.generated';
+import { ARTICLES } from '../artikel/artikel.generated';
 import { SCHNELLCHECK } from '../schnellcheck/schnellcheck.definition';
 import { NewsletterSignupComponent } from '../../shared/newsletter-signup.component';
 
@@ -12,8 +12,8 @@ import { NewsletterSignupComponent } from '../../shared/newsletter-signup.compon
   imports: [RouterLink, DatePipe, NewsletterSignupComponent],
   template: `
     <section class="hero">
-      <!-- dezentes Knoten-Raster als Hintergrund, rein dekorativ -->
-      <svg class="hero__grafik" viewBox="0 0 600 400" aria-hidden="true" focusable="false">
+      <!-- subtle node grid as background, purely decorative -->
+      <svg class="hero__graphic" viewBox="0 0 600 400" aria-hidden="true" focusable="false">
         <g fill="none" stroke="#14181d" stroke-width="1.2" opacity="0.35">
           <path d="M80 320 L200 220 L360 260 L520 120" />
           <path d="M200 220 L300 90 L520 120" />
@@ -29,19 +29,19 @@ import { NewsletterSignupComponent } from '../../shared/newsletter-signup.compon
         </g>
       </svg>
       <div class="container hero__inner">
-        <p class="hero__kicker einblenden" style="--reihenfolge: 0">
+        <p class="hero__kicker fade-in" style="--stagger: 0">
           Unabhängiges Fachportal · EU AI Act · Mittelstand
         </p>
-        <h1 class="hero__titel einblenden" style="--reihenfolge: 1">
+        <h1 class="hero__title fade-in" style="--stagger: 1">
           KI-Einsatz und KI&#8209;Regulierung —
-          <span class="hero__akzent">verständlich erklärt</span>
+          <span class="hero__accent">verständlich erklärt</span>
         </h1>
-        <p class="hero__mission einblenden" style="--reihenfolge: 2">
-          Für IT-Leitung, Datenschutzbeauftragte und Geschäftsführung: Was verlangt der EU AI
-          Act, welche Fristen gelten, und was ist im Unternehmen konkret zu tun?
+        <p class="hero__mission fade-in" style="--stagger: 2">
+          Für IT-Leitung, Datenschutzbeauftragte und Geschäftsführung: Was verlangt der EU AI Act,
+          welche Fristen gelten, und was ist im Unternehmen konkret zu tun?
         </p>
-        <div class="hero__aktionen einblenden" style="--reihenfolge: 3">
-          <a class="primaer" routerLink="/schnellcheck">
+        <div class="hero__actions fade-in" style="--stagger: 3">
+          <a class="primary" routerLink="/schnellcheck">
             Schnellcheck starten
             <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
               <path
@@ -54,25 +54,33 @@ import { NewsletterSignupComponent } from '../../shared/newsletter-signup.compon
               />
             </svg>
           </a>
-          <a class="sekundaer" routerLink="/artikel">Artikel lesen</a>
+          <a class="secondary" routerLink="/artikel">Artikel lesen</a>
         </div>
       </div>
     </section>
 
     <div class="container">
-      <section class="teaser scroll-reveal" aria-labelledby="teaser-titel">
+      <section class="teaser scroll-reveal" aria-labelledby="teaser-title">
         <div class="teaser__icon" aria-hidden="true">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-            stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <svg
+            width="28"
+            height="28"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
             <rect x="4" y="3" width="16" height="18" rx="2" />
             <path d="M8.5 8.5l1.5 1.5 3-3.5" />
             <path d="M8.5 14.5l1.5 1.5 3-3.5" />
           </svg>
         </div>
         <div>
-          <h2 id="teaser-titel">Wo steht Ihr Unternehmen? Der KI-Act Schnellcheck</h2>
+          <h2 id="teaser-title">Wo steht Ihr Unternehmen? Der KI-Act Schnellcheck</h2>
           <p>
-            {{ anzahlFragen }} Fragen, etwa 3 Minuten: eine erste, unverbindliche Orientierung,
+            {{ questionCount }} Fragen, etwa 3 Minuten: eine erste, unverbindliche Orientierung,
             welche Pflichten des EU AI Act Ihr Unternehmen voraussichtlich betreffen — ohne
             Anmeldung, Ergebnis sofort sichtbar.
           </p>
@@ -82,20 +90,22 @@ import { NewsletterSignupComponent } from '../../shared/newsletter-signup.compon
         </div>
       </section>
 
-      <section aria-labelledby="artikel-titel" class="artikel-bereich">
-        <div class="artikel-bereich__kopf scroll-reveal">
-          <h2 id="artikel-titel">Aktuelle Artikel</h2>
-          <a routerLink="/artikel" class="alle-link">Alle Artikel <span aria-hidden="true">→</span></a>
+      <section aria-labelledby="articles-title" class="articles-section">
+        <div class="articles-section__header scroll-reveal">
+          <h2 id="articles-title">Aktuelle Artikel</h2>
+          <a routerLink="/artikel" class="all-link"
+            >Alle Artikel <span aria-hidden="true">→</span></a
+          >
         </div>
-        <ul class="artikel-karten">
-          @for (artikel of neuesteArtikel; track artikel.slug; let i = $index) {
+        <ul class="article-cards">
+          @for (article of latestArticles; track article.slug; let i = $index) {
             <li class="scroll-reveal">
               <article>
-                <a class="karte" [routerLink]="['/artikel', artikel.slug]">
-                  <time [dateTime]="artikel.date">{{ artikel.date | date: 'd. MMMM yyyy' }}</time>
-                  <h3>{{ artikel.title }}</h3>
-                  <p>{{ artikel.description }}</p>
-                  <span class="karte__mehr" aria-hidden="true">Weiterlesen →</span>
+                <a class="card" [routerLink]="['/artikel', article.slug]">
+                  <time [dateTime]="article.date">{{ article.date | date: 'd. MMMM yyyy' }}</time>
+                  <h3>{{ article.title }}</h3>
+                  <p>{{ article.description }}</p>
+                  <span class="card__more" aria-hidden="true">Weiterlesen →</span>
                 </a>
               </article>
             </li>
@@ -103,8 +113,8 @@ import { NewsletterSignupComponent } from '../../shared/newsletter-signup.compon
         </ul>
       </section>
 
-      <section class="newsletter-box scroll-reveal" aria-labelledby="newsletter-titel">
-        <h2 id="newsletter-titel">KI-Regulierung in 5 Minuten — monatlich</h2>
+      <section class="newsletter-box scroll-reveal" aria-labelledby="newsletter-title">
+        <h2 id="newsletter-title">KI-Regulierung in 5 Minuten — monatlich</h2>
         <p>
           Das Wichtigste zu Fristen, Pflichten und KI-Praxis im Mittelstand, einmal im Monat per
           E-Mail. Double-Opt-in, jederzeit abbestellbar.
@@ -122,7 +132,7 @@ import { NewsletterSignupComponent } from '../../shared/newsletter-signup.compon
         radial-gradient(50rem 22rem at 0% 110%, var(--color-accent-faint) 0%, transparent 55%),
         linear-gradient(180deg, var(--color-bg-subtle) 0%, var(--color-bg) 92%);
 
-      // Trikolore-Linie (Markenmotiv)
+      // Tricolor line (brand motif)
       &::after {
         content: '';
         position: absolute;
@@ -130,11 +140,11 @@ import { NewsletterSignupComponent } from '../../shared/newsletter-signup.compon
         right: 0;
         bottom: 0;
         height: 3px;
-        background: var(--verlauf-trikolore);
+        background: var(--gradient-tricolor);
       }
     }
 
-    .hero__grafik {
+    .hero__graphic {
       position: absolute;
       right: -4rem;
       top: 50%;
@@ -159,13 +169,13 @@ import { NewsletterSignupComponent } from '../../shared/newsletter-signup.compon
       margin-bottom: var(--space-4);
     }
 
-    .hero__titel {
+    .hero__title {
       font-size: var(--text-display);
       max-width: 17ch;
       margin-bottom: var(--space-5);
     }
 
-    .hero__akzent {
+    .hero__accent {
       background: linear-gradient(120deg, var(--color-accent-bright), var(--color-accent-dark));
       -webkit-background-clip: text;
       background-clip: text;
@@ -179,7 +189,7 @@ import { NewsletterSignupComponent } from '../../shared/newsletter-signup.compon
       margin-bottom: var(--space-6);
     }
 
-    .hero__aktionen {
+    .hero__actions {
       display: flex;
       flex-wrap: wrap;
       gap: var(--space-3);
@@ -195,7 +205,7 @@ import { NewsletterSignupComponent } from '../../shared/newsletter-signup.compon
       padding: clamp(var(--space-5), 4vw, var(--space-6));
       margin-block: var(--space-8);
       box-shadow: var(--shadow-sm);
-      transition: box-shadow var(--dauer-normal) var(--ease-out);
+      transition: box-shadow var(--duration-normal) var(--ease-out);
 
       &:hover {
         box-shadow: var(--shadow-md);
@@ -230,7 +240,7 @@ import { NewsletterSignupComponent } from '../../shared/newsletter-signup.compon
 
       span {
         display: inline-block;
-        transition: transform var(--dauer-schnell) var(--ease-out);
+        transition: transform var(--duration-fast) var(--ease-out);
       }
 
       &:hover span {
@@ -238,11 +248,11 @@ import { NewsletterSignupComponent } from '../../shared/newsletter-signup.compon
       }
     }
 
-    .artikel-bereich {
+    .articles-section {
       margin-block-end: var(--space-8);
     }
 
-    .artikel-bereich__kopf {
+    .articles-section__header {
       display: flex;
       align-items: baseline;
       justify-content: space-between;
@@ -250,7 +260,7 @@ import { NewsletterSignupComponent } from '../../shared/newsletter-signup.compon
       margin-bottom: var(--space-5);
     }
 
-    .alle-link {
+    .all-link {
       font-weight: 600;
       font-size: var(--text-sm);
       text-decoration: none;
@@ -258,7 +268,7 @@ import { NewsletterSignupComponent } from '../../shared/newsletter-signup.compon
 
       span {
         display: inline-block;
-        transition: transform var(--dauer-schnell) var(--ease-out);
+        transition: transform var(--duration-fast) var(--ease-out);
       }
 
       &:hover span {
@@ -266,7 +276,7 @@ import { NewsletterSignupComponent } from '../../shared/newsletter-signup.compon
       }
     }
 
-    .artikel-karten {
+    .article-cards {
       list-style: none;
       padding: 0;
       display: grid;
@@ -274,7 +284,7 @@ import { NewsletterSignupComponent } from '../../shared/newsletter-signup.compon
       grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
     }
 
-    .karte {
+    .card {
       display: flex;
       flex-direction: column;
       gap: var(--space-2);
@@ -288,11 +298,11 @@ import { NewsletterSignupComponent } from '../../shared/newsletter-signup.compon
       position: relative;
       overflow: hidden;
       transition:
-        transform var(--dauer-normal) var(--ease-out),
-        box-shadow var(--dauer-normal) var(--ease-out),
-        border-color var(--dauer-normal) var(--ease-out);
+        transform var(--duration-normal) var(--ease-out),
+        box-shadow var(--duration-normal) var(--ease-out),
+        border-color var(--duration-normal) var(--ease-out);
 
-      // Akzentkante, faehrt bei Hover ein
+      // Accent edge, slides in on hover
       &::before {
         content: '';
         position: absolute;
@@ -301,7 +311,7 @@ import { NewsletterSignupComponent } from '../../shared/newsletter-signup.compon
         background: linear-gradient(180deg, var(--color-accent-bright), var(--color-accent));
         transform: scaleY(0);
         transform-origin: top;
-        transition: transform var(--dauer-normal) var(--ease-out);
+        transition: transform var(--duration-normal) var(--ease-out);
       }
 
       &:hover {
@@ -313,7 +323,7 @@ import { NewsletterSignupComponent } from '../../shared/newsletter-signup.compon
           transform: scaleY(1);
         }
 
-        .karte__mehr {
+        .card__more {
           color: var(--color-accent);
           transform: translateX(4px);
         }
@@ -339,13 +349,13 @@ import { NewsletterSignupComponent } from '../../shared/newsletter-signup.compon
       }
     }
 
-    .karte__mehr {
+    .card__more {
       font-size: var(--text-sm);
       font-weight: 600;
       color: var(--color-text-faint);
       transition:
-        color var(--dauer-schnell) var(--ease-out),
-        transform var(--dauer-schnell) var(--ease-out);
+        color var(--duration-fast) var(--ease-out),
+        transform var(--duration-fast) var(--ease-out);
     }
 
     .newsletter-box {
@@ -380,8 +390,8 @@ import { NewsletterSignupComponent } from '../../shared/newsletter-signup.compon
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HomeComponent {
-  protected readonly neuesteArtikel = ARTIKEL.slice(0, 3);
-  protected readonly anzahlFragen = SCHNELLCHECK.fragen.length;
+  protected readonly latestArticles = ARTICLES.slice(0, 3);
+  protected readonly questionCount = SCHNELLCHECK.questions.length;
 
   constructor() {
     inject(PageMetaService).setPage({

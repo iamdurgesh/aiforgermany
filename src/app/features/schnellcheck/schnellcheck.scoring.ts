@@ -1,38 +1,38 @@
 /**
- * Reine, deterministische Bewertung des Schnellchecks (WORKING MAP §4).
- * Keine Angular-Abhängigkeiten — vollständig unit-testbar.
+ * Pure, deterministic scoring of the Schnellcheck (WORKING MAP §4).
+ * No Angular dependencies — fully unit-testable.
  *
- * Formulierungsgrenze (Rechtsdienstleistungsgesetz): Befunde sind stets als
- * Orientierung formuliert („voraussichtlich“, „könnte“), nie als
- * Rechtsfolgenaussage.
+ * Wording constraint (German Legal Services Act): findings are always
+ * phrased as orientation ("voraussichtlich", "könnte"), never as a
+ * statement of legal consequences.
  */
-import { Antworten, CheckDefinition, RisikoFlag } from './schnellcheck.definition';
+import { Answers, CheckDefinition, RiskFlag } from './schnellcheck.definition';
 
-export type Ampel = 'gruen' | 'gelb' | 'rot';
+export type TrafficLight = 'green' | 'yellow' | 'red';
 
 export interface CheckResult {
-  readonly ampel: Ampel;
-  readonly punkte: number;
-  readonly flags: readonly RisikoFlag[];
-  /** Maximal drei Kernbefunde, nach Priorität sortiert. */
-  readonly befunde: readonly string[];
+  readonly trafficLight: TrafficLight;
+  readonly points: number;
+  readonly flags: readonly RiskFlag[];
+  /** At most three key findings, sorted by priority. */
+  readonly findings: readonly string[];
 }
 
-/** Punktsumme, ab der es ohne Hochrisiko-Flag Gelb gibt. */
-const GELB_SCHWELLE = 4;
+/** Point total from which the result is yellow even without a high-risk flag. */
+const YELLOW_THRESHOLD = 4;
 
-const HOCHRISIKO_FLAGS: readonly RisikoFlag[] = ['anhang-i', 'anhang-iii'];
+const HIGH_RISK_FLAGS: readonly RiskFlag[] = ['annex-i', 'annex-iii'];
 
-/** Befund-Texte je Flag, in Prioritätsreihenfolge für die Top-3-Auswahl. */
-const BEFUNDE: readonly { flag: RisikoFlag; text: string }[] = [
+/** Finding texts per flag, in priority order for the top-3 selection. */
+const FINDINGS: readonly { flag: RiskFlag; text: string }[] = [
   {
-    flag: 'anhang-iii',
+    flag: 'annex-iii',
     text:
       'Mindestens eine Anwendung könnte unter die Hochrisiko-Pflichten nach Anhang III fallen ' +
       '(z. B. Personalwesen, Bonitätsprüfung).',
   },
   {
-    flag: 'anhang-i',
+    flag: 'annex-i',
     text:
       'KI in Produkten mit Sicherheitsfunktion fällt voraussichtlich unter Anhang I — ' +
       'relevante Frist: Dezember 2027.',
@@ -44,80 +44,78 @@ const BEFUNDE: readonly { flag: RisikoFlag; text: string }[] = [
       'Unternehmen voraussichtlich.',
   },
   {
-    flag: 'kein-inventar',
+    flag: 'no-inventory',
     text: 'Ohne KI-Inventar fehlt die Grundlage für alle weiteren Pflichten.',
   },
   {
-    flag: 'schatten-ki',
+    flag: 'shadow-ai',
     text:
       'KI-Nutzung ohne Freigabe ist wahrscheinlich — Schatten-KI sollte zuerst sichtbar ' +
       'gemacht werden.',
   },
   {
-    flag: 'keine-richtlinie',
+    flag: 'no-policy',
     text:
       'Interne KI-Richtlinien und Schulungen (KI-Kompetenz, Art. 4) fehlen oder sind ' +
       'unvollständig — diese Pflicht gilt bereits.',
   },
   {
-    flag: 'dsgvo',
+    flag: 'gdpr',
     text:
       'Ihre KI-Anwendungen verarbeiten voraussichtlich personenbezogene Daten — die DSGVO ' +
       'gilt parallel zum AI Act.',
   },
 ];
 
-const BEFUND_GRUEN =
+const GREEN_FINDING =
   'Nach Ihren Angaben gibt es derzeit keine Hinweise auf Hochrisiko-Pflichten. Beobachten ' +
   'Sie Änderungen im KI-Einsatz und pflegen Sie Ihr KI-Inventar weiter.';
 
-/** Sind alle Fragen beantwortet (je mindestens eine Option)? */
-export function istVollstaendig(definition: CheckDefinition, antworten: Antworten): boolean {
-  return definition.fragen.every((frage) => (antworten[frage.id]?.length ?? 0) > 0);
+/** Are all questions answered (at least one option each)? */
+export function isComplete(definition: CheckDefinition, answers: Answers): boolean {
+  return definition.questions.every((question) => (answers[question.id]?.length ?? 0) > 0);
 }
 
 /**
- * Bewertet die Antworten rein datengetrieben:
- * Punkte und Flags kommen ausschließlich aus der Definition.
+ * Scores the answers purely data-driven:
+ * points and flags come exclusively from the definition.
  */
-export function evaluate(definition: CheckDefinition, antworten: Antworten): CheckResult {
-  let punkte = 0;
-  const flags = new Set<RisikoFlag>();
+export function evaluate(definition: CheckDefinition, answers: Answers): CheckResult {
+  let points = 0;
+  const flags = new Set<RiskFlag>();
 
-  for (const frage of definition.fragen) {
-    const gewaehlt = antworten[frage.id] ?? [];
-    for (const optionId of gewaehlt) {
-      const option = frage.optionen.find((o) => o.id === optionId);
+  for (const question of definition.questions) {
+    const selected = answers[question.id] ?? [];
+    for (const optionId of selected) {
+      const option = question.options.find((o) => o.id === optionId);
       if (!option) {
-        throw new Error(
-          `Unbekannte Antwortoption "${optionId}" für Frage "${frage.id}".`,
-        );
+        throw new Error(`Unknown answer option "${optionId}" for question "${question.id}".`);
       }
-      punkte += option.punkte ?? 0;
+      points += option.points ?? 0;
       for (const flag of option.flags ?? []) {
         flags.add(flag);
       }
     }
   }
 
-  const ampel = bestimmeAmpel(punkte, flags);
-  return { ampel, punkte, flags: [...flags], befunde: bestimmeBefunde(flags) };
+  const trafficLight = determineTrafficLight(points, flags);
+  return { trafficLight, points, flags: [...flags], findings: determineFindings(flags) };
 }
 
-function bestimmeAmpel(punkte: number, flags: ReadonlySet<RisikoFlag>): Ampel {
-  if (HOCHRISIKO_FLAGS.some((flag) => flags.has(flag))) {
-    return 'rot';
+function determineTrafficLight(points: number, flags: ReadonlySet<RiskFlag>): TrafficLight {
+  if (HIGH_RISK_FLAGS.some((flag) => flags.has(flag))) {
+    return 'red';
   }
-  if (punkte >= GELB_SCHWELLE || flags.size > 0) {
-    return 'gelb';
+  if (points >= YELLOW_THRESHOLD || flags.size > 0) {
+    return 'yellow';
   }
-  return 'gruen';
+  return 'green';
 }
 
-function bestimmeBefunde(flags: ReadonlySet<RisikoFlag>): readonly string[] {
-  const treffer = BEFUNDE.filter((b) => flags.has(b.flag)).map((b) => b.text);
-  if (treffer.length === 0) {
-    return [BEFUND_GRUEN];
+function determineFindings(flags: ReadonlySet<RiskFlag>): readonly string[] {
+  const matches = FINDINGS.filter((f) => flags.has(f.flag)).map((f) => f.text);
+  if (matches.length === 0) {
+    return [GREEN_FINDING];
   }
-  return treffer.slice(0, 3);
+  return matches.slice(0, 3);
 }

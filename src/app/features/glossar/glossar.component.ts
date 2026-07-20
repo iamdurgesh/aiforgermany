@@ -2,62 +2,62 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { RouterLink } from '@angular/router';
 
 import { PageMetaService } from '../../core/page-meta.service';
-import { GLOSSAR } from './glossar.data';
+import { GLOSSARY } from './glossar.data';
 
 @Component({
   selector: 'app-glossar',
   imports: [RouterLink],
   template: `
     <div class="page">
-      <p class="kicker einblenden" style="--reihenfolge: 0">Nachschlagewerk</p>
-      <h1 class="einblenden" style="--reihenfolge: 1">Glossar</h1>
-      <p class="einblenden intro" style="--reihenfolge: 2">
+      <p class="kicker fade-in" style="--stagger: 0">Nachschlagewerk</p>
+      <h1 class="fade-in" style="--stagger: 1">Glossar</h1>
+      <p class="fade-in intro" style="--stagger: 2">
         Die wichtigsten Begriffe rund um EU AI Act, KI-Einsatz und KI-Aufsicht in Deutschland —
         kompakt und ohne Juristendeutsch. Für eine erste Einschätzung Ihres Unternehmens:
         <a routerLink="/schnellcheck">zum KI-Act Schnellcheck</a>.
       </p>
 
-      <div class="feld suche einblenden" style="--reihenfolge: 3">
-        <label for="glossar-suche">Begriff suchen</label>
+      <div class="field search fade-in" style="--stagger: 3">
+        <label for="glossary-search">Begriff suchen</label>
         <input
-          id="glossar-suche"
+          id="glossary-search"
           type="text"
           autocomplete="off"
           placeholder="z. B. Hochrisiko, Anhang III, Schatten-KI …"
-          (input)="filter.set(sucheingabe($event))"
+          (input)="filter.set(searchInput($event))"
         />
-        <p class="suche__stand" role="status">
+        <p class="search__status" role="status">
           @if (filter()) {
-            {{ gefiltert().length }} von {{ alle.length }} Begriffen
+            {{ filtered().length }} von {{ allTerms.length }} Begriffen
           } @else {
-            {{ alle.length }} Begriffe, alphabetisch sortiert
+            {{ allTerms.length }} Begriffe, alphabetisch sortiert
           }
         </p>
       </div>
 
-      <dl class="glossar">
-        @for (eintrag of gefiltert(); track eintrag.id) {
-          <div class="glossar__eintrag" [id]="eintrag.id">
+      <dl class="glossary">
+        @for (entry of filtered(); track entry.id) {
+          <div class="glossary__entry" [id]="entry.id">
             <dt>
-              <a class="glossar__anker" [href]="'/glossar#' + eintrag.id" aria-hidden="true"
+              <a class="glossary__anchor" [href]="'/glossar#' + entry.id" aria-hidden="true"
                 >#</a
               >
-              {{ eintrag.begriff }}
+              {{ entry.term }}
             </dt>
             <dd>
-              {{ eintrag.definition }}
-              @if (eintrag.verweise?.length) {
-                <span class="verweise">
-                  <span class="verweise__label">Mehr dazu:</span>
-                  @for (verweis of eintrag.verweise; track verweis.pfad) {
-                    <a [routerLink]="verweis.pfad">{{ verweis.text }}</a>
+              {{ entry.definition }}
+              @if (entry.links?.length) {
+                <span class="references">
+                  <span class="references__label">Mehr dazu:</span>
+                  @for (link of entry.links; track link.path) {
+                    <a [routerLink]="link.path">{{ link.text }}</a>
                   }
                 </span>
               }
             </dd>
           </div>
         } @empty {
-          <p class="leer">
+          <p class="empty">
             Kein Treffer für „{{ filter() }}“. Vielleicht hilft die
             <a routerLink="/artikel">Artikelübersicht</a> weiter.
           </p>
@@ -83,7 +83,7 @@ import { GLOSSAR } from './glossar.data';
       color: var(--color-text-muted);
     }
 
-    .suche {
+    .search {
       margin-block: var(--space-5) var(--space-2);
 
       input {
@@ -91,24 +91,24 @@ import { GLOSSAR } from './glossar.data';
       }
     }
 
-    .suche__stand {
+    .search__status {
       color: var(--color-text-faint);
       font-size: var(--text-xs);
       margin-top: var(--space-2);
     }
 
-    .glossar {
+    .glossary {
       display: grid;
       margin-top: var(--space-4);
     }
 
-    .glossar__eintrag {
+    .glossary__entry {
       border-top: 1px solid var(--color-border);
       padding: var(--space-4) var(--space-3);
       margin-inline: calc(-1 * var(--space-3));
       border-radius: var(--radius);
       scroll-margin-top: 6rem;
-      transition: background var(--dauer-schnell) var(--ease-out);
+      transition: background var(--duration-fast) var(--ease-out);
 
       &:hover {
         background: var(--color-accent-faint);
@@ -131,7 +131,7 @@ import { GLOSSAR } from './glossar.data';
       color: var(--color-text-muted);
     }
 
-    .verweise {
+    .references {
       display: flex;
       flex-wrap: wrap;
       gap: var(--space-2) var(--space-3);
@@ -147,8 +147,8 @@ import { GLOSSAR } from './glossar.data';
         border-radius: 999px;
         padding: var(--space-1) var(--space-3);
         transition:
-          border-color var(--dauer-schnell) var(--ease-out),
-          background var(--dauer-schnell) var(--ease-out);
+          border-color var(--duration-fast) var(--ease-out),
+          background var(--duration-fast) var(--ease-out);
 
         &:hover {
           border-color: var(--color-accent);
@@ -157,7 +157,7 @@ import { GLOSSAR } from './glossar.data';
       }
     }
 
-    .verweise__label {
+    .references__label {
       font-size: var(--text-xs);
       font-weight: 650;
       letter-spacing: var(--tracking-wide);
@@ -165,11 +165,11 @@ import { GLOSSAR } from './glossar.data';
       color: var(--color-text-faint);
     }
 
-    .glossar__anker {
+    .glossary__anchor {
       color: var(--color-border-strong);
       text-decoration: none;
       margin-right: var(--space-1);
-      transition: color var(--dauer-schnell) var(--ease-out);
+      transition: color var(--duration-fast) var(--ease-out);
 
       &:hover,
       &:focus-visible {
@@ -177,7 +177,7 @@ import { GLOSSAR } from './glossar.data';
       }
     }
 
-    .leer {
+    .empty {
       border-top: 1px solid var(--color-border);
       padding-top: var(--space-4);
       color: var(--color-text-muted);
@@ -186,19 +186,19 @@ import { GLOSSAR } from './glossar.data';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GlossarComponent {
-  protected readonly alle = [...GLOSSAR].sort((a, b) => a.begriff.localeCompare(b.begriff, 'de'));
+  protected readonly allTerms = [...GLOSSARY].sort((a, b) => a.term.localeCompare(b.term, 'de'));
 
   protected readonly filter = signal('');
 
-  protected readonly gefiltert = computed(() => {
-    const suchwort = this.filter().trim().toLowerCase();
-    if (!suchwort) {
-      return this.alle;
+  protected readonly filtered = computed(() => {
+    const searchTerm = this.filter().trim().toLowerCase();
+    if (!searchTerm) {
+      return this.allTerms;
     }
-    return this.alle.filter(
-      (eintrag) =>
-        eintrag.begriff.toLowerCase().includes(suchwort) ||
-        eintrag.definition.toLowerCase().includes(suchwort),
+    return this.allTerms.filter(
+      (entry) =>
+        entry.term.toLowerCase().includes(searchTerm) ||
+        entry.definition.toLowerCase().includes(searchTerm),
     );
   });
 
@@ -211,7 +211,7 @@ export class GlossarComponent {
     });
   }
 
-  protected sucheingabe(event: Event): string {
+  protected searchInput(event: Event): string {
     return (event.target as HTMLInputElement).value;
   }
 }

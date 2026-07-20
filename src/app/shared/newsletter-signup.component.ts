@@ -3,26 +3,26 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 
-type SendeStatus = 'offen' | 'sendet' | 'gesendet' | 'fehler';
+type SubmitStatus = 'idle' | 'sending' | 'sent' | 'error';
 
 /**
- * Newsletter-Anmeldung mit Double-Opt-in — geteilt zwischen /newsletter und
- * der Startseite (zweite Verwendung, WORKING MAP §2 DRY-Regel).
+ * Newsletter sign-up with double opt-in — shared between /newsletter and
+ * the home page (second usage, WORKING MAP §2 DRY rule).
  */
 @Component({
   selector: 'app-newsletter-signup',
   imports: [ReactiveFormsModule, RouterLink],
   template: `
     @switch (status()) {
-      @case ('gesendet') {
-        <p class="hinweis-erfolg" role="status">
+      @case ('sent') {
+        <p class="success-note" role="status">
           Fast geschafft: Bitte bestätigen Sie den Link in der E-Mail, die wir Ihnen gerade
           geschickt haben (Double-Opt-in). Erst danach ist die Anmeldung wirksam.
         </p>
       }
       @default {
-        <form (submit)="anmelden($event)">
-          <div class="feld">
+        <form (submit)="signUp($event)">
+          <div class="field">
             <label for="newsletter-email">E-Mail-Adresse</label>
             <input
               id="newsletter-email"
@@ -31,33 +31,33 @@ type SendeStatus = 'offen' | 'sendet' | 'gesendet' | 'fehler';
               [formControl]="email"
               [attr.aria-invalid]="email.invalid && email.touched ? true : null"
               [attr.aria-describedby]="
-                email.invalid && email.touched ? 'newsletter-email-fehler' : null
+                email.invalid && email.touched ? 'newsletter-email-error' : null
               "
             />
             @if (email.invalid && email.touched) {
-              <p class="feld-fehler" id="newsletter-email-fehler">
+              <p class="field-error" id="newsletter-email-error">
                 Bitte geben Sie eine gültige E-Mail-Adresse ein.
               </p>
             }
           </div>
-          <div class="feld feld--checkbox">
-            <input id="newsletter-einwilligung" type="checkbox" [formControl]="einwilligung" />
-            <label for="newsletter-einwilligung">
+          <div class="field field--checkbox">
+            <input id="newsletter-consent" type="checkbox" [formControl]="consent" />
+            <label for="newsletter-consent">
               Ich willige ein, dass meine E-Mail-Adresse zum Versand des Newsletters
               verarbeitet wird. Abmeldung jederzeit über den Link in jeder Ausgabe — Details in
               der <a routerLink="/datenschutz">Datenschutzerklärung</a>.
             </label>
           </div>
-          @if (einwilligung.invalid && einwilligung.touched) {
-            <p class="feld-fehler">Bitte bestätigen Sie die Einwilligung.</p>
+          @if (consent.invalid && consent.touched) {
+            <p class="field-error">Bitte bestätigen Sie die Einwilligung.</p>
           }
-          @if (status() === 'fehler') {
-            <p class="feld-fehler" role="alert">
+          @if (status() === 'error') {
+            <p class="field-error" role="alert">
               Anmeldung fehlgeschlagen. Bitte versuchen Sie es später erneut.
             </p>
           }
-          <button type="submit" class="primaer" [disabled]="status() === 'sendet'">
-            {{ status() === 'sendet' ? 'Wird gesendet …' : 'Anmelden' }}
+          <button type="submit" class="primary" [disabled]="status() === 'sending'">
+            {{ status() === 'sending' ? 'Wird gesendet …' : 'Anmelden' }}
           </button>
         </form>
       }
@@ -68,30 +68,30 @@ type SendeStatus = 'offen' | 'sendet' | 'gesendet' | 'fehler';
 export class NewsletterSignupComponent {
   private readonly http = inject(HttpClient);
 
-  protected readonly status = signal<SendeStatus>('offen');
+  protected readonly status = signal<SubmitStatus>('idle');
 
   protected readonly email = new FormControl('', {
     nonNullable: true,
     validators: [Validators.required, Validators.email],
   });
-  protected readonly einwilligung = new FormControl(false, {
+  protected readonly consent = new FormControl(false, {
     nonNullable: true,
     validators: [Validators.requiredTrue],
   });
 
-  protected anmelden(event: Event): void {
+  protected signUp(event: Event): void {
     event.preventDefault();
     this.email.markAsTouched();
-    this.einwilligung.markAsTouched();
-    if (this.email.invalid || this.einwilligung.invalid) {
+    this.consent.markAsTouched();
+    if (this.email.invalid || this.consent.invalid) {
       return;
     }
-    this.status.set('sendet');
+    this.status.set('sending');
     this.http
-      .post<void>('/api/newsletter', { email: this.email.value, einwilligung: true })
+      .post<void>('/api/newsletter', { email: this.email.value, consent: true })
       .subscribe({
-        next: () => this.status.set('gesendet'),
-        error: () => this.status.set('fehler'),
+        next: () => this.status.set('sent'),
+        error: () => this.status.set('error'),
       });
   }
 }

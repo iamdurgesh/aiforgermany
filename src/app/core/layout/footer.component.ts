@@ -7,16 +7,16 @@ import { RouterLink } from '@angular/router';
   template: `
     <footer class="site-footer">
       <div class="container site-footer__inner">
-        <div class="site-footer__spalte site-footer__mission">
-          <p class="site-footer__marke">AI for Germany</p>
+        <div class="site-footer__column site-footer__mission">
+          <p class="site-footer__brand">AI for Germany</p>
           <p>
             Das unabhängige Informationsportal für KI-Einsatz und KI-Regulierung im deutschen
             Mittelstand.
           </p>
-          <!-- PRODUKT-LINK folgt -->
+          <!-- PRODUCT LINK to follow -->
         </div>
-        <nav class="site-footer__spalte" aria-label="Portal">
-          <p class="site-footer__titel">Portal</p>
+        <nav class="site-footer__column" aria-label="Portal">
+          <p class="site-footer__title">Portal</p>
           <ul>
             <li><a routerLink="/artikel">Artikel</a></li>
             <li><a routerLink="/schnellcheck">KI-Act Schnellcheck</a></li>
@@ -24,8 +24,8 @@ import { RouterLink } from '@angular/router';
             <li><a routerLink="/newsletter">Newsletter</a></li>
           </ul>
         </nav>
-        <nav class="site-footer__spalte" aria-label="Rechtliches">
-          <p class="site-footer__titel">Rechtliches</p>
+        <nav class="site-footer__column" aria-label="Rechtliches">
+          <p class="site-footer__title">Rechtliches</p>
           <ul>
             <li><a routerLink="/impressum">Impressum</a></li>
             <li><a routerLink="/datenschutz">Datenschutz</a></li>
@@ -47,7 +47,7 @@ import { RouterLink } from '@angular/router';
       font-size: var(--text-sm);
       position: relative;
 
-      // Trikolore-Linie (Markenmotiv)
+      // Tricolor line (brand motif)
       &::before {
         content: '';
         position: absolute;
@@ -55,7 +55,7 @@ import { RouterLink } from '@angular/router';
         left: 0;
         right: 0;
         height: 3px;
-        background: var(--verlauf-trikolore);
+        background: var(--gradient-tricolor);
       }
     }
 
@@ -66,7 +66,7 @@ import { RouterLink } from '@angular/router';
       padding-block: var(--space-7) var(--space-5);
     }
 
-    .site-footer__marke {
+    .site-footer__brand {
       font-weight: 680;
       color: var(--color-text);
       letter-spacing: var(--tracking-tight);
@@ -78,7 +78,7 @@ import { RouterLink } from '@angular/router';
       max-width: 26rem;
     }
 
-    .site-footer__titel {
+    .site-footer__title {
       font-weight: 650;
       color: var(--color-text);
       text-transform: uppercase;
@@ -87,7 +87,7 @@ import { RouterLink } from '@angular/router';
       margin-bottom: var(--space-3);
     }
 
-    .site-footer__spalte ul {
+    .site-footer__column ul {
       list-style: none;
       display: grid;
       gap: var(--space-2);

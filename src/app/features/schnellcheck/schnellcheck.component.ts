@@ -12,17 +12,17 @@ import { RouterLink } from '@angular/router';
 
 import { PageMetaService } from '../../core/page-meta.service';
 import { SchnellcheckApiService } from './schnellcheck-api.service';
-import { Antworten, Frage, SCHNELLCHECK } from './schnellcheck.definition';
-import { evaluate, istVollstaendig } from './schnellcheck.scoring';
+import { Answers, Question, SCHNELLCHECK } from './schnellcheck.definition';
+import { evaluate, isComplete } from './schnellcheck.scoring';
 
-type Schritt = 'start' | number | 'ergebnis';
-type SendeStatus = 'offen' | 'sendet' | 'gesendet' | 'fehler';
-type Richtung = 'vor' | 'zurueck';
+type Step = 'start' | number | 'result';
+type SubmitStatus = 'idle' | 'sending' | 'sent' | 'error';
+type Direction = 'forward' | 'back';
 
-const AMPEL_LABEL = {
-  gruen: 'Grün — derzeit geringe Hinweise auf Pflichten',
-  gelb: 'Gelb — es gelten voraussichtlich bereits Pflichten',
-  rot: 'Rot — Hochrisiko-Pflichten sind wahrscheinlich',
+const TRAFFIC_LIGHT_LABEL = {
+  green: 'Grün — derzeit geringe Hinweise auf Pflichten',
+  yellow: 'Gelb — es gelten voraussichtlich bereits Pflichten',
+  red: 'Rot — Hochrisiko-Pflichten sind wahrscheinlich',
 } as const;
 
 @Component({
@@ -30,75 +30,117 @@ const AMPEL_LABEL = {
   imports: [ReactiveFormsModule, RouterLink],
   template: `
     <div class="page">
-      @switch (schritt()) {
+      @switch (step()) {
         @case ('start') {
-          <p class="kicker einblenden" style="--reihenfolge: 0">Unverbindliche Orientierung</p>
-          <h1 class="einblenden" style="--reihenfolge: 1">KI-Act Schnellcheck</h1>
-          <p class="einblenden intro" style="--reihenfolge: 2">
-            Beantworten Sie {{ anzahlFragen }} kurze Fragen zu Ihrem KI-Einsatz — danach sehen
-            Sie eine Ampel-Einschätzung mit den wichtigsten Befunden für Ihr Unternehmen.
+          <p class="kicker fade-in" style="--stagger: 0">Unverbindliche Orientierung</p>
+          <h1 class="fade-in" style="--stagger: 1">KI-Act Schnellcheck</h1>
+          <p class="fade-in intro" style="--stagger: 2">
+            Beantworten Sie {{ questionCount }} kurze Fragen zu Ihrem KI-Einsatz — danach sehen Sie
+            eine Ampel-Einschätzung mit den wichtigsten Befunden für Ihr Unternehmen.
           </p>
-          <ul class="fakten einblenden" style="--reihenfolge: 3">
-            <li><strong>{{ anzahlFragen }}</strong> Fragen</li>
+          <ul class="facts fade-in" style="--stagger: 3">
+            <li>
+              <strong>{{ questionCount }}</strong> Fragen
+            </li>
             <li><strong>≈ 3</strong> Minuten</li>
             <li><strong>0</strong> Anmeldung nötig</li>
           </ul>
-          <ul class="leistungen einblenden" style="--reihenfolge: 4">
+          <ul class="benefits fade-in" style="--stagger: 4">
             <li>
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12l5 5L20 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  d="M4 12l5 5L20 6"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.4"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
               Ampel-Einschätzung sofort auf dem Bildschirm — ohne E-Mail-Adresse
             </li>
             <li>
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12l5 5L20 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  d="M4 12l5 5L20 6"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.4"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
               Die drei wichtigsten Befunde, priorisiert nach Risiko
             </li>
             <li>
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12l5 5L20 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  d="M4 12l5 5L20 6"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.4"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
               Optional: vollständige Auswertung mit Pflichten-Checkliste per E-Mail
             </li>
           </ul>
-          <aside class="disclaimer einblenden" role="note" style="--reihenfolge: 5">
+          <aside class="disclaimer fade-in" role="note" style="--stagger: 5">
             {{ disclaimer }}
           </aside>
-          <p class="einblenden" style="--reihenfolge: 6">
-            <button type="button" class="primaer" (click)="starten()">
+          <p class="fade-in" style="--stagger: 6">
+            <button type="button" class="primary" (click)="start()">
               Check starten
               <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
-                <path d="M6 3l5 5-5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path
+                  d="M6 3l5 5-5 5"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
               </svg>
             </button>
           </p>
         }
-        @case ('ergebnis') {
-          <h1 class="einblenden">Ihr Ergebnis</h1>
-          @if (ergebnis(); as e) {
-            <section class="ampel" [class]="'ampel--' + e.ampel" aria-labelledby="ampel-titel">
-              <div class="ampel__lichter" aria-hidden="true">
-                <span class="licht licht--rot"></span>
-                <span class="licht licht--gelb"></span>
-                <span class="licht licht--gruen"></span>
+        @case ('result') {
+          <h1 class="fade-in">Ihr Ergebnis</h1>
+          @if (result(); as r) {
+            <section
+              class="traffic-light"
+              [class]="'traffic-light--' + r.trafficLight"
+              aria-labelledby="traffic-light-title"
+            >
+              <div class="traffic-light__lights" aria-hidden="true">
+                <span class="light light--red"></span>
+                <span class="light light--yellow"></span>
+                <span class="light light--green"></span>
               </div>
               <div>
-                <h2 id="ampel-titel" #ergebnisTitel tabindex="-1">{{ ampelLabel[e.ampel] }}</h2>
-                <ul class="befunde">
-                  @for (befund of e.befunde; track befund; let i = $index) {
-                    <li class="einblenden" [style.--reihenfolge]="i + 3">{{ befund }}</li>
+                <h2 id="traffic-light-title" #resultTitle tabindex="-1">
+                  {{ trafficLightLabel[r.trafficLight] }}
+                </h2>
+                <ul class="findings">
+                  @for (finding of r.findings; track finding; let i = $index) {
+                    <li class="fade-in" [style.--stagger]="i + 3">{{ finding }}</li>
                   }
                 </ul>
               </div>
             </section>
 
-            <details class="angaben">
+            <details class="answers">
               <summary>Ihre Angaben im Überblick</summary>
               <ol>
-                @for (frage of fragen; track frage.id; let i = $index) {
+                @for (question of questions; track question.id; let i = $index) {
                   <li>
                     <div>
-                      <span class="angaben__frage">{{ frage.text }}</span>
-                      <span class="angaben__antwort">{{ gewaehlteTexte(frage) }}</span>
+                      <span class="answers__question">{{ question.text }}</span>
+                      <span class="answers__answer">{{ selectedOptionTexts(question) }}</span>
                     </div>
-                    <button type="button" class="angaben__aendern" (click)="bearbeite(i)">
-                      Ändern<span class="visually-hidden">: {{ frage.text }}</span>
+                    <button type="button" class="answers__edit" (click)="edit(i)">
+                      Ändern<span class="visually-hidden">: {{ question.text }}</span>
                     </button>
                   </li>
                 }
@@ -107,23 +149,23 @@ const AMPEL_LABEL = {
 
             <aside class="disclaimer" role="note">{{ disclaimer }}</aside>
 
-            <section class="email-gate" aria-labelledby="email-titel">
-              <h2 id="email-titel">Vollständige Auswertung per E-Mail (optional)</h2>
+            <section class="email-gate" aria-labelledby="email-title">
+              <h2 id="email-title">Vollständige Auswertung per E-Mail (optional)</h2>
               <p>
-                Ihre vollständige Auswertung mit Pflichten-Checkliste senden wir Ihnen per
-                E-Mail. Das Kurzergebnis oben bleibt selbstverständlich ohne Angabe einer
-                E-Mail-Adresse sichtbar.
+                Ihre vollständige Auswertung mit Pflichten-Checkliste senden wir Ihnen per E-Mail.
+                Das Kurzergebnis oben bleibt selbstverständlich ohne Angabe einer E-Mail-Adresse
+                sichtbar.
               </p>
-              @switch (sendeStatus()) {
-                @case ('gesendet') {
-                  <p class="hinweis-erfolg" role="status">
-                    Fast geschafft: Wir haben Ihnen eine E-Mail geschickt. Bitte bestätigen Sie
-                    den Link darin (Double-Opt-in) — erst dann senden wir die Auswertung.
+              @switch (submitStatus()) {
+                @case ('sent') {
+                  <p class="success-note" role="status">
+                    Fast geschafft: Wir haben Ihnen eine E-Mail geschickt. Bitte bestätigen Sie den
+                    Link darin (Double-Opt-in) — erst dann senden wir die Auswertung.
                   </p>
                 }
                 @default {
-                  <form (submit)="absenden($event)">
-                    <div class="feld">
+                  <form (submit)="submit($event)">
+                    <div class="field">
                       <label for="email">E-Mail-Adresse</label>
                       <input
                         id="email"
@@ -132,118 +174,123 @@ const AMPEL_LABEL = {
                         [formControl]="email"
                         [attr.aria-invalid]="email.invalid && email.touched ? true : null"
                         [attr.aria-describedby]="
-                          email.invalid && email.touched ? 'email-fehler' : null
+                          email.invalid && email.touched ? 'email-error' : null
                         "
                       />
                       @if (email.invalid && email.touched) {
-                        <p class="feld-fehler" id="email-fehler">
+                        <p class="field-error" id="email-error">
                           Bitte geben Sie eine gültige E-Mail-Adresse ein.
                         </p>
                       }
                     </div>
-                    <div class="feld feld--checkbox">
-                      <input id="einwilligung" type="checkbox" [formControl]="einwilligung" />
-                      <label for="einwilligung">
+                    <div class="field field--checkbox">
+                      <input id="consent" type="checkbox" [formControl]="consent" />
+                      <label for="consent">
                         Ich willige ein, dass meine E-Mail-Adresse und meine Antworten zur
-                        Erstellung und Zusendung der Auswertung verarbeitet werden. Die
-                        Einwilligung ist jederzeit widerrufbar — Details in der
+                        Erstellung und Zusendung der Auswertung verarbeitet werden. Die Einwilligung
+                        ist jederzeit widerrufbar — Details in der
                         <a routerLink="/datenschutz">Datenschutzerklärung</a>.
                       </label>
                     </div>
-                    @if (einwilligung.invalid && einwilligung.touched) {
-                      <p class="feld-fehler">Bitte bestätigen Sie die Einwilligung.</p>
+                    @if (consent.invalid && consent.touched) {
+                      <p class="field-error">Bitte bestätigen Sie die Einwilligung.</p>
                     }
-                    @if (sendeStatus() === 'fehler') {
-                      <p class="feld-fehler" role="alert">
+                    @if (submitStatus() === 'error') {
+                      <p class="field-error" role="alert">
                         Senden fehlgeschlagen. Bitte versuchen Sie es später erneut — Ihr
                         Kurzergebnis oben bleibt gültig.
                       </p>
                     }
-                    <button type="submit" class="primaer" [disabled]="sendeStatus() === 'sendet'">
-                      {{ sendeStatus() === 'sendet' ? 'Wird gesendet …' : 'Auswertung anfordern' }}
+                    <button type="submit" class="primary" [disabled]="submitStatus() === 'sending'">
+                      {{
+                        submitStatus() === 'sending' ? 'Wird gesendet …' : 'Auswertung anfordern'
+                      }}
                     </button>
                   </form>
                 }
               }
             </section>
             <p>
-              <button type="button" class="sekundaer" (click)="neustarten()">
-                Check neu starten
-              </button>
+              <button type="button" class="secondary" (click)="restart()">Check neu starten</button>
             </p>
           }
         }
         @default {
-          <div class="fortschritt">
-            <span class="fortschritt__text" aria-hidden="true">
-              Frage {{ frageNummer() }} von {{ anzahlFragen }}
+          <div class="progress">
+            <span class="progress__text" aria-hidden="true">
+              Frage {{ questionNumber() }} von {{ questionCount }}
             </span>
-            <div class="fortschritt__balken" aria-hidden="true">
+            <div class="progress__bar" aria-hidden="true">
               <div
-                class="fortschritt__wert"
-                [style.width.%]="(frageNummer() / anzahlFragen) * 100"
+                class="progress__value"
+                [style.width.%]="(questionNumber() / questionCount) * 100"
               ></div>
             </div>
-            <ol class="schritte" aria-label="Fragenübersicht — beantwortete Fragen sind anklickbar">
-              @for (frage of fragen; track frage.id; let i = $index) {
+            <ol class="steps" aria-label="Fragenübersicht — beantwortete Fragen sind anklickbar">
+              @for (question of questions; track question.id; let i = $index) {
                 <li>
                   <button
                     type="button"
-                    class="punkt"
-                    [class.punkt--aktiv]="i === frageIndex()"
-                    [class.punkt--beantwortet]="istFrageBeantwortet(frage.id)"
-                    [disabled]="!istFrageBeantwortet(frage.id) && i !== frageIndex()"
-                    [attr.aria-current]="i === frageIndex() ? 'step' : null"
+                    class="dot"
+                    [class.dot--active]="i === questionIndex()"
+                    [class.dot--answered]="isQuestionAnswered(question.id)"
+                    [disabled]="!isQuestionAnswered(question.id) && i !== questionIndex()"
+                    [attr.aria-current]="i === questionIndex() ? 'step' : null"
                     [attr.aria-label]="
-                      'Frage ' +
-                      (i + 1) +
-                      (istFrageBeantwortet(frage.id) ? ' (beantwortet)' : '')
+                      'Frage ' + (i + 1) + (isQuestionAnswered(question.id) ? ' (beantwortet)' : '')
                     "
-                    (click)="springeZu(i)"
+                    (click)="jumpTo(i)"
                   ></button>
                 </li>
               }
             </ol>
           </div>
-          @for (frage of aktuelleFrageListe(); track frage.id) {
+          @for (question of currentQuestionList(); track question.id) {
             <form
-              class="frage-karte"
-              [class.wechsel--vor]="richtung() === 'vor'"
-              [class.wechsel--zurueck]="richtung() === 'zurueck'"
-              (submit)="weiter($event)"
+              class="question-card"
+              [class.slide--forward]="direction() === 'forward'"
+              [class.slide--back]="direction() === 'back'"
+              (submit)="next($event)"
             >
               <fieldset>
                 <legend>
                   <span class="visually-hidden"
-                    >Frage {{ frageNummer() }} von {{ anzahlFragen }}:
+                    >Frage {{ questionNumber() }} von {{ questionCount }}:
                   </span>
-                  <span #frageTitel tabindex="-1">{{ frage.text }}</span>
+                  <span #questionTitle tabindex="-1">{{ question.text }}</span>
                 </legend>
-                @if (frage.hinweis) {
-                  <p class="frage-hinweis">{{ frage.hinweis }}</p>
+                @if (question.hint) {
+                  <p class="question-hint">{{ question.hint }}</p>
                 }
-                <div class="optionen">
-                  @for (option of frage.optionen; track option.id) {
+                <div class="options">
+                  @for (option of question.options; track option.id) {
                     <label
                       class="option"
-                      [class.option--gewaehlt]="istGewaehlt(frage.id, option.id)"
-                      [for]="frage.id + '-' + option.id"
+                      [class.option--selected]="isSelected(question.id, option.id)"
+                      [for]="question.id + '-' + option.id"
                     >
                       <input
                         class="visually-hidden"
-                        [type]="frage.typ === 'single' ? 'radio' : 'checkbox'"
-                        [id]="frage.id + '-' + option.id"
-                        [name]="frage.id"
-                        [checked]="istGewaehlt(frage.id, option.id)"
-                        (change)="waehle(frage, option.id)"
+                        [type]="question.type === 'single' ? 'radio' : 'checkbox'"
+                        [id]="question.id + '-' + option.id"
+                        [name]="question.id"
+                        [checked]="isSelected(question.id, option.id)"
+                        (change)="select(question, option.id)"
                       />
                       <span
-                        class="option__indikator"
-                        [class.option__indikator--eckig]="frage.typ === 'multi'"
+                        class="option__indicator"
+                        [class.option__indicator--square]="question.type === 'multi'"
                         aria-hidden="true"
                       >
                         <svg viewBox="0 0 24 24">
-                          <path d="M4 12l5 5L20 6" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+                          <path
+                            d="M4 12l5 5L20 6"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="3.2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                          />
                         </svg>
                       </span>
                       <span class="option__text">{{ option.text }}</span>
@@ -251,15 +298,22 @@ const AMPEL_LABEL = {
                   }
                 </div>
               </fieldset>
-              @if (weiterVersucht() && !frageBeantwortet()) {
-                <p class="feld-fehler" role="alert">Bitte wählen Sie eine Antwort aus.</p>
+              @if (nextAttempted() && !questionAnswered()) {
+                <p class="field-error" role="alert">Bitte wählen Sie eine Antwort aus.</p>
               }
               <div class="navigation">
-                <button type="button" class="sekundaer" (click)="zurueck()">Zurück</button>
-                <button type="submit" class="primaer">
-                  {{ weiterLabel() }}
+                <button type="button" class="secondary" (click)="back()">Zurück</button>
+                <button type="submit" class="primary">
+                  {{ nextLabel() }}
                   <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
-                    <path d="M6 3l5 5-5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path
+                      d="M6 3l5 5-5 5"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
                   </svg>
                 </button>
               </div>
@@ -284,7 +338,7 @@ const AMPEL_LABEL = {
       font-size: var(--text-lg);
     }
 
-    .fakten {
+    .facts {
       list-style: none;
       padding: 0;
       display: flex;
@@ -311,7 +365,7 @@ const AMPEL_LABEL = {
       }
     }
 
-    .leistungen {
+    .benefits {
       list-style: none;
       padding: 0;
       display: grid;
@@ -342,11 +396,11 @@ const AMPEL_LABEL = {
       border-radius: 0 var(--radius) var(--radius) 0;
     }
 
-    .fortschritt {
+    .progress {
       margin-bottom: var(--space-5);
     }
 
-    .fortschritt__text {
+    .progress__text {
       display: block;
       color: var(--color-text-muted);
       font-size: var(--text-xs);
@@ -356,21 +410,21 @@ const AMPEL_LABEL = {
       margin-bottom: var(--space-2);
     }
 
-    .fortschritt__balken {
+    .progress__bar {
       height: 6px;
       border-radius: 999px;
       background: var(--color-border);
       overflow: hidden;
     }
 
-    .fortschritt__wert {
+    .progress__value {
       height: 100%;
       border-radius: 999px;
-      background: var(--verlauf-trikolore);
-      transition: width var(--dauer-normal) var(--ease-out);
+      background: var(--gradient-tricolor);
+      transition: width var(--duration-normal) var(--ease-out);
     }
 
-    .schritte {
+    .steps {
       list-style: none;
       padding: 0;
       display: flex;
@@ -379,7 +433,7 @@ const AMPEL_LABEL = {
       margin-top: var(--space-3);
     }
 
-    .punkt {
+    .dot {
       width: 0.9rem;
       height: 0.9rem;
       border-radius: 50%;
@@ -388,16 +442,16 @@ const AMPEL_LABEL = {
       padding: 0;
       cursor: pointer;
       transition:
-        background var(--dauer-schnell) var(--ease-out),
-        border-color var(--dauer-schnell) var(--ease-out),
-        transform var(--dauer-schnell) var(--ease-out);
+        background var(--duration-fast) var(--ease-out),
+        border-color var(--duration-fast) var(--ease-out),
+        transform var(--duration-fast) var(--ease-out);
 
       &:disabled {
         cursor: default;
         opacity: 0.55;
       }
 
-      &.punkt--beantwortet {
+      &.dot--answered {
         background: var(--color-accent-line);
         border-color: var(--color-accent);
 
@@ -406,15 +460,15 @@ const AMPEL_LABEL = {
         }
       }
 
-      &.punkt--aktiv {
+      &.dot--active {
         background: var(--color-accent);
         border-color: var(--color-accent);
         transform: scale(1.15);
       }
     }
 
-    // Fragenwechsel: gerichteter Kartenwechsel
-    @keyframes karte-vor {
+    // Question change: directional card transition
+    @keyframes card-forward {
       from {
         opacity: 0;
         transform: translateX(28px);
@@ -425,7 +479,7 @@ const AMPEL_LABEL = {
       }
     }
 
-    @keyframes karte-zurueck {
+    @keyframes card-back {
       from {
         opacity: 0;
         transform: translateX(-28px);
@@ -436,12 +490,12 @@ const AMPEL_LABEL = {
       }
     }
 
-    .frage-karte.wechsel--vor {
-      animation: karte-vor var(--dauer-normal) var(--ease-out) both;
+    .question-card.slide--forward {
+      animation: card-forward var(--duration-normal) var(--ease-out) both;
     }
 
-    .frage-karte.wechsel--zurueck {
-      animation: karte-zurueck var(--dauer-normal) var(--ease-out) both;
+    .question-card.slide--back {
+      animation: card-back var(--duration-normal) var(--ease-out) both;
     }
 
     fieldset {
@@ -462,21 +516,21 @@ const AMPEL_LABEL = {
       }
     }
 
-    .frage-hinweis {
+    .question-hint {
       color: var(--color-text-muted);
       font-size: var(--text-sm);
       margin-bottom: var(--space-4);
     }
 
-    .optionen {
+    .options {
       display: grid;
       gap: var(--space-2);
       margin-block: var(--space-4);
     }
 
-    // Ganze Karte ist das Label; natives Input bleibt (unsichtbar) für
-    // Tastatur & Screenreader. Auswahlzustand kommt aus dem Komponenten-State,
-    // nicht aus :has() — funktioniert damit in jedem Browser.
+    // The whole card is the label; the native input stays (invisible) for
+    // keyboard & screen readers. Selection state comes from component state,
+    // not from :has() — works in every browser that way.
     .option {
       display: flex;
       gap: var(--space-3);
@@ -488,10 +542,10 @@ const AMPEL_LABEL = {
       cursor: pointer;
       user-select: none;
       transition:
-        border-color var(--dauer-schnell) var(--ease-out),
-        background var(--dauer-schnell) var(--ease-out),
-        transform var(--dauer-schnell) var(--ease-out),
-        box-shadow var(--dauer-schnell) var(--ease-out);
+        border-color var(--duration-fast) var(--ease-out),
+        background var(--duration-fast) var(--ease-out),
+        transform var(--duration-fast) var(--ease-out),
+        box-shadow var(--duration-fast) var(--ease-out);
 
       &:hover {
         border-color: var(--color-border-strong);
@@ -499,19 +553,19 @@ const AMPEL_LABEL = {
         box-shadow: var(--shadow-sm);
       }
 
-      // Tastaturfokus des versteckten Inputs sichtbar auf der Karte
+      // Keyboard focus of the hidden input made visible on the card
       &:focus-within {
         outline: var(--focus-ring);
         outline-offset: var(--focus-offset);
       }
     }
 
-    .option--gewaehlt {
+    .option--selected {
       border-color: var(--color-accent);
       background: var(--color-accent-faint);
       box-shadow: var(--shadow-sm);
 
-      .option__indikator {
+      .option__indicator {
         border-color: var(--color-accent);
         background: var(--color-accent);
         color: #fff;
@@ -527,7 +581,7 @@ const AMPEL_LABEL = {
       }
     }
 
-    .option__indikator {
+    .option__indicator {
       flex-shrink: 0;
       display: grid;
       place-items: center;
@@ -538,8 +592,8 @@ const AMPEL_LABEL = {
       background: var(--color-bg);
       color: transparent;
       transition:
-        border-color var(--dauer-schnell) var(--ease-out),
-        background var(--dauer-schnell) var(--ease-out);
+        border-color var(--duration-fast) var(--ease-out),
+        background var(--duration-fast) var(--ease-out);
 
       svg {
         width: 0.9rem;
@@ -547,11 +601,11 @@ const AMPEL_LABEL = {
         opacity: 0;
         transform: scale(0.4);
         transition:
-          opacity var(--dauer-schnell) var(--ease-out),
-          transform var(--dauer-schnell) var(--ease-out);
+          opacity var(--duration-fast) var(--ease-out),
+          transform var(--duration-fast) var(--ease-out);
       }
 
-      &.option__indikator--eckig {
+      &.option__indicator--square {
         border-radius: 6px;
       }
     }
@@ -566,14 +620,14 @@ const AMPEL_LABEL = {
       margin-top: var(--space-5);
     }
 
-    .ampel {
+    .traffic-light {
       display: flex;
       gap: var(--space-5);
       align-items: flex-start;
       border-radius: var(--radius-lg);
       padding: var(--space-5);
       margin-block: var(--space-5);
-      animation: aufskalieren var(--dauer-langsam) var(--ease-out) both;
+      animation: scale-up var(--duration-slow) var(--ease-out) both;
 
       h2 {
         margin-bottom: var(--space-3);
@@ -585,8 +639,8 @@ const AMPEL_LABEL = {
       }
     }
 
-    // Ampel-Lichter: das einzige „bunte" Element (WORKING MAP §7)
-    .ampel__lichter {
+    // Traffic lights: the only "colorful" element (WORKING MAP §7)
+    .traffic-light__lights {
       flex-shrink: 0;
       display: grid;
       gap: var(--space-2);
@@ -595,50 +649,50 @@ const AMPEL_LABEL = {
       padding: var(--space-2);
     }
 
-    .licht {
+    .light {
       width: 1.1rem;
       height: 1.1rem;
       border-radius: 50%;
       opacity: 0.22;
 
-      &.licht--rot {
+      &.light--red {
         background: var(--color-risk-red);
       }
 
-      &.licht--gelb {
+      &.light--yellow {
         background: #e3b341;
       }
 
-      &.licht--gruen {
+      &.light--green {
         background: var(--color-risk-green);
       }
     }
 
-    .ampel--rot .licht--rot,
-    .ampel--gelb .licht--gelb,
-    .ampel--gruen .licht--gruen {
+    .traffic-light--red .light--red,
+    .traffic-light--yellow .light--yellow,
+    .traffic-light--green .light--green {
       opacity: 1;
       box-shadow: 0 0 12px 2px currentColor;
-      animation: aufskalieren var(--dauer-langsam) var(--ease-out) both;
+      animation: scale-up var(--duration-slow) var(--ease-out) both;
       animation-delay: 180ms;
     }
 
-    .ampel--gruen {
+    .traffic-light--green {
       background: var(--color-risk-green-bg);
       border-left: 4px solid var(--color-risk-green);
     }
 
-    .ampel--gelb {
+    .traffic-light--yellow {
       background: var(--color-risk-yellow-bg);
       border-left: 4px solid var(--color-risk-yellow);
     }
 
-    .ampel--rot {
+    .traffic-light--red {
       background: var(--color-risk-red-bg);
       border-left: 4px solid var(--color-risk-red);
     }
 
-    .befunde {
+    .findings {
       margin: 0;
       padding-left: 1.25rem;
 
@@ -647,7 +701,7 @@ const AMPEL_LABEL = {
       }
     }
 
-    .angaben {
+    .answers {
       border: 1px solid var(--color-border);
       border-radius: var(--radius);
       background: var(--color-bg-raised);
@@ -658,7 +712,7 @@ const AMPEL_LABEL = {
         font-weight: 600;
         padding: var(--space-3) var(--space-4);
         border-radius: var(--radius);
-        transition: background var(--dauer-schnell) var(--ease-out);
+        transition: background var(--duration-fast) var(--ease-out);
 
         &:hover {
           background: var(--color-accent-faint);
@@ -682,18 +736,18 @@ const AMPEL_LABEL = {
       }
     }
 
-    .angaben__frage {
+    .answers__question {
       display: block;
       font-size: var(--text-sm);
       color: var(--color-text-muted);
     }
 
-    .angaben__antwort {
+    .answers__answer {
       display: block;
       font-weight: 600;
     }
 
-    .angaben__aendern {
+    .answers__edit {
       flex-shrink: 0;
       background: none;
       border: 1px solid var(--color-border-strong);
@@ -703,8 +757,8 @@ const AMPEL_LABEL = {
       font-weight: 600;
       cursor: pointer;
       transition:
-        border-color var(--dauer-schnell) var(--ease-out),
-        color var(--dauer-schnell) var(--ease-out);
+        border-color var(--duration-fast) var(--ease-out),
+        color var(--duration-fast) var(--ease-out);
 
       &:hover {
         border-color: var(--color-accent);
@@ -736,61 +790,61 @@ export class SchnellcheckComponent {
   private readonly api = inject(SchnellcheckApiService);
 
   protected readonly disclaimer = SCHNELLCHECK.disclaimer;
-  protected readonly fragen = SCHNELLCHECK.fragen;
-  protected readonly anzahlFragen = SCHNELLCHECK.fragen.length;
-  protected readonly ampelLabel = AMPEL_LABEL;
+  protected readonly questions = SCHNELLCHECK.questions;
+  protected readonly questionCount = SCHNELLCHECK.questions.length;
+  protected readonly trafficLightLabel = TRAFFIC_LIGHT_LABEL;
 
-  protected readonly schritt = signal<Schritt>('start');
-  protected readonly antworten = signal<Antworten>({});
-  protected readonly weiterVersucht = signal(false);
-  protected readonly sendeStatus = signal<SendeStatus>('offen');
-  protected readonly richtung = signal<Richtung>('vor');
-  private readonly kamVomErgebnis = signal(false);
+  protected readonly step = signal<Step>('start');
+  protected readonly answers = signal<Answers>({});
+  protected readonly nextAttempted = signal(false);
+  protected readonly submitStatus = signal<SubmitStatus>('idle');
+  protected readonly direction = signal<Direction>('forward');
+  private readonly cameFromResult = signal(false);
 
   protected readonly email = new FormControl('', {
     nonNullable: true,
     validators: [Validators.required, Validators.email],
   });
-  protected readonly einwilligung = new FormControl(false, {
+  protected readonly consent = new FormControl(false, {
     nonNullable: true,
     validators: [Validators.requiredTrue],
   });
 
-  private readonly frageTitel = viewChild<ElementRef<HTMLElement>>('frageTitel');
-  private readonly ergebnisTitel = viewChild<ElementRef<HTMLElement>>('ergebnisTitel');
+  private readonly questionTitle = viewChild<ElementRef<HTMLElement>>('questionTitle');
+  private readonly resultTitle = viewChild<ElementRef<HTMLElement>>('resultTitle');
 
-  protected readonly frageIndex = computed(() => {
-    const schritt = this.schritt();
-    return typeof schritt === 'number' ? schritt : -1;
+  protected readonly questionIndex = computed(() => {
+    const step = this.step();
+    return typeof step === 'number' ? step : -1;
   });
 
-  protected readonly aktuelleFrage = computed<Frage | undefined>(
-    () => SCHNELLCHECK.fragen[this.frageIndex()],
+  protected readonly currentQuestion = computed<Question | undefined>(
+    () => SCHNELLCHECK.questions[this.questionIndex()],
   );
 
-  /** Als Ein-Element-Liste, damit @for die Karte je Frage neu aufbaut (Animation). */
-  protected readonly aktuelleFrageListe = computed<readonly Frage[]>(() => {
-    const frage = this.aktuelleFrage();
-    return frage ? [frage] : [];
+  /** As a one-element list so @for rebuilds the card per question (animation). */
+  protected readonly currentQuestionList = computed<readonly Question[]>(() => {
+    const question = this.currentQuestion();
+    return question ? [question] : [];
   });
 
-  protected readonly frageNummer = computed(() => this.frageIndex() + 1);
+  protected readonly questionNumber = computed(() => this.questionIndex() + 1);
 
-  protected readonly frageBeantwortet = computed(() => {
-    const frage = this.aktuelleFrage();
-    return !!frage && (this.antworten()[frage.id]?.length ?? 0) > 0;
+  protected readonly questionAnswered = computed(() => {
+    const question = this.currentQuestion();
+    return !!question && (this.answers()[question.id]?.length ?? 0) > 0;
   });
 
-  protected readonly weiterLabel = computed(() => {
-    if (this.kamVomErgebnis()) {
+  protected readonly nextLabel = computed(() => {
+    if (this.cameFromResult()) {
       return 'Zurück zum Ergebnis';
     }
-    return this.frageNummer() === this.anzahlFragen ? 'Zum Ergebnis' : 'Weiter';
+    return this.questionNumber() === this.questionCount ? 'Zum Ergebnis' : 'Weiter';
   });
 
-  protected readonly ergebnis = computed(() =>
-    this.schritt() === 'ergebnis' && istVollstaendig(SCHNELLCHECK, this.antworten())
-      ? evaluate(SCHNELLCHECK, this.antworten())
+  protected readonly result = computed(() =>
+    this.step() === 'result' && isComplete(SCHNELLCHECK, this.answers())
+      ? evaluate(SCHNELLCHECK, this.answers())
       : undefined,
   );
 
@@ -803,137 +857,137 @@ export class SchnellcheckComponent {
     });
   }
 
-  protected starten(): void {
-    this.richtung.set('vor');
-    this.schritt.set(0);
-    this.fokusAufFrage();
+  protected start(): void {
+    this.direction.set('forward');
+    this.step.set(0);
+    this.focusQuestion();
   }
 
-  protected istFrageBeantwortet(frageId: string): boolean {
-    return (this.antworten()[frageId]?.length ?? 0) > 0;
+  protected isQuestionAnswered(questionId: string): boolean {
+    return (this.answers()[questionId]?.length ?? 0) > 0;
   }
 
-  protected springeZu(index: number): void {
-    const aktuell = this.frageIndex();
-    if (index === aktuell) {
+  protected jumpTo(index: number): void {
+    const current = this.questionIndex();
+    if (index === current) {
       return;
     }
-    this.richtung.set(index > aktuell ? 'vor' : 'zurueck');
-    this.weiterVersucht.set(false);
-    this.schritt.set(index);
-    this.fokusAufFrage();
+    this.direction.set(index > current ? 'forward' : 'back');
+    this.nextAttempted.set(false);
+    this.step.set(index);
+    this.focusQuestion();
   }
 
-  /** Aus der Ergebnis-Übersicht heraus eine Antwort ändern. */
-  protected bearbeite(index: number): void {
-    this.kamVomErgebnis.set(true);
-    this.richtung.set('zurueck');
-    this.schritt.set(index);
-    this.fokusAufFrage();
+  /** Change an answer from the result overview. */
+  protected edit(index: number): void {
+    this.cameFromResult.set(true);
+    this.direction.set('back');
+    this.step.set(index);
+    this.focusQuestion();
   }
 
-  protected gewaehlteTexte(frage: Frage): string {
-    const auswahl = this.antworten()[frage.id] ?? [];
-    return frage.optionen
-      .filter((option) => auswahl.includes(option.id))
+  protected selectedOptionTexts(question: Question): string {
+    const selection = this.answers()[question.id] ?? [];
+    return question.options
+      .filter((option) => selection.includes(option.id))
       .map((option) => option.text)
       .join(', ');
   }
 
-  protected waehle(frage: Frage, optionId: string): void {
-    this.antworten.update((antworten) => {
-      const bisher = antworten[frage.id] ?? [];
-      const auswahl =
-        frage.typ === 'single'
+  protected select(question: Question, optionId: string): void {
+    this.answers.update((answers) => {
+      const previous = answers[question.id] ?? [];
+      const selection =
+        question.type === 'single'
           ? [optionId]
-          : bisher.includes(optionId)
-            ? bisher.filter((id) => id !== optionId)
-            : [...bisher, optionId];
-      return { ...antworten, [frage.id]: auswahl };
+          : previous.includes(optionId)
+            ? previous.filter((id) => id !== optionId)
+            : [...previous, optionId];
+      return { ...answers, [question.id]: selection };
     });
   }
 
-  protected istGewaehlt(frageId: string, optionId: string): boolean {
-    return this.antworten()[frageId]?.includes(optionId) ?? false;
+  protected isSelected(questionId: string, optionId: string): boolean {
+    return this.answers()[questionId]?.includes(optionId) ?? false;
   }
 
-  protected weiter(event: Event): void {
+  protected next(event: Event): void {
     event.preventDefault();
-    if (!this.frageBeantwortet()) {
-      this.weiterVersucht.set(true);
+    if (!this.questionAnswered()) {
+      this.nextAttempted.set(true);
       return;
     }
-    this.weiterVersucht.set(false);
-    const index = this.frageIndex();
+    this.nextAttempted.set(false);
+    const index = this.questionIndex();
     if (index < 0) {
       return;
     }
-    if (this.kamVomErgebnis() && istVollstaendig(SCHNELLCHECK, this.antworten())) {
-      this.kamVomErgebnis.set(false);
-      this.zeigeErgebnis();
+    if (this.cameFromResult() && isComplete(SCHNELLCHECK, this.answers())) {
+      this.cameFromResult.set(false);
+      this.showResult();
       return;
     }
-    if (index + 1 < this.anzahlFragen) {
-      this.richtung.set('vor');
-      this.schritt.set(index + 1);
-      this.fokusAufFrage();
+    if (index + 1 < this.questionCount) {
+      this.direction.set('forward');
+      this.step.set(index + 1);
+      this.focusQuestion();
     } else {
-      this.zeigeErgebnis();
+      this.showResult();
     }
   }
 
-  protected zurueck(): void {
-    const index = this.frageIndex();
-    this.weiterVersucht.set(false);
-    this.kamVomErgebnis.set(false);
-    this.richtung.set('zurueck');
+  protected back(): void {
+    const index = this.questionIndex();
+    this.nextAttempted.set(false);
+    this.cameFromResult.set(false);
+    this.direction.set('back');
     if (index === 0) {
-      this.schritt.set('start');
+      this.step.set('start');
     } else if (index > 0) {
-      this.schritt.set(index - 1);
-      this.fokusAufFrage();
+      this.step.set(index - 1);
+      this.focusQuestion();
     }
   }
 
-  protected neustarten(): void {
-    this.antworten.set({});
-    this.sendeStatus.set('offen');
-    this.kamVomErgebnis.set(false);
+  protected restart(): void {
+    this.answers.set({});
+    this.submitStatus.set('idle');
+    this.cameFromResult.set(false);
     this.email.reset();
-    this.einwilligung.reset();
-    this.richtung.set('vor');
-    this.schritt.set('start');
+    this.consent.reset();
+    this.direction.set('forward');
+    this.step.set('start');
   }
 
-  protected absenden(event: Event): void {
+  protected submit(event: Event): void {
     event.preventDefault();
     this.email.markAsTouched();
-    this.einwilligung.markAsTouched();
-    const ergebnis = this.ergebnis();
-    if (this.email.invalid || this.einwilligung.invalid || !ergebnis) {
+    this.consent.markAsTouched();
+    const result = this.result();
+    if (this.email.invalid || this.consent.invalid || !result) {
       return;
     }
-    this.sendeStatus.set('sendet');
+    this.submitStatus.set('sending');
     this.api
-      .sendeErgebnis({
+      .submitResult({
         email: this.email.value,
-        einwilligung: true,
-        antworten: this.antworten(),
-        ampel: ergebnis.ampel,
-        befunde: ergebnis.befunde,
+        consent: true,
+        answers: this.answers(),
+        trafficLight: result.trafficLight,
+        findings: result.findings,
       })
       .subscribe({
-        next: () => this.sendeStatus.set('gesendet'),
-        error: () => this.sendeStatus.set('fehler'),
+        next: () => this.submitStatus.set('sent'),
+        error: () => this.submitStatus.set('error'),
       });
   }
 
-  private zeigeErgebnis(): void {
-    this.schritt.set('ergebnis');
-    queueMicrotask(() => this.ergebnisTitel()?.nativeElement.focus());
+  private showResult(): void {
+    this.step.set('result');
+    queueMicrotask(() => this.resultTitle()?.nativeElement.focus());
   }
 
-  private fokusAufFrage(): void {
-    queueMicrotask(() => this.frageTitel()?.nativeElement.focus());
+  private focusQuestion(): void {
+    queueMicrotask(() => this.questionTitle()?.nativeElement.focus());
   }
 }

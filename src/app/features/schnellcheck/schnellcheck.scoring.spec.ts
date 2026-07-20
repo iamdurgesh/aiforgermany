@@ -1,225 +1,225 @@
 import { describe, expect, it } from 'vitest';
 
 import {
-  Antworten,
+  Answers,
   CheckDefinition,
   SCHNELLCHECK,
   SCHNELLCHECK_DISCLAIMER,
 } from './schnellcheck.definition';
-import { evaluate, istVollstaendig } from './schnellcheck.scoring';
+import { evaluate, isComplete } from './schnellcheck.scoring';
 
-/** Antworten-Fixture: für jede Frage die Option mit 0 Punkten und ohne Flags. */
-function harmloseAntworten(definition: CheckDefinition = SCHNELLCHECK): Record<string, string[]> {
-  const antworten: Record<string, string[]> = {};
-  for (const frage of definition.fragen) {
-    const harmlos = frage.optionen.find((o) => !o.punkte && !o.flags?.length);
-    if (!harmlos) {
-      throw new Error(`Frage ${frage.id} hat keine harmlose Option.`);
+/** Answers fixture: for each question the option with 0 points and no flags. */
+function harmlessAnswers(definition: CheckDefinition = SCHNELLCHECK): Record<string, string[]> {
+  const answers: Record<string, string[]> = {};
+  for (const question of definition.questions) {
+    const harmless = question.options.find((o) => !o.points && !o.flags?.length);
+    if (!harmless) {
+      throw new Error(`Question ${question.id} has no harmless option.`);
     }
-    antworten[frage.id] = [harmlos.id];
+    answers[question.id] = [harmless.id];
   }
-  return antworten;
+  return answers;
 }
 
-function mitAntwort(frageId: string, optionId: string): Antworten {
-  return { ...harmloseAntworten(), [frageId]: [optionId] };
+function withAnswer(questionId: string, optionId: string): Answers {
+  return { ...harmlessAnswers(), [questionId]: [optionId] };
 }
 
-describe('SCHNELLCHECK Definition', () => {
-  it('enthält die 10 Fragen aus der WORKING MAP', () => {
-    expect(SCHNELLCHECK.fragen).toHaveLength(10);
+describe('SCHNELLCHECK definition', () => {
+  it('contains the 10 questions from the WORKING MAP', () => {
+    expect(SCHNELLCHECK.questions).toHaveLength(10);
   });
 
-  it('hat eindeutige Frage-Ids und eindeutige Options-Ids je Frage', () => {
-    const frageIds = SCHNELLCHECK.fragen.map((f) => f.id);
-    expect(new Set(frageIds).size).toBe(frageIds.length);
-    for (const frage of SCHNELLCHECK.fragen) {
-      const optionIds = frage.optionen.map((o) => o.id);
+  it('has unique question ids and unique option ids per question', () => {
+    const questionIds = SCHNELLCHECK.questions.map((q) => q.id);
+    expect(new Set(questionIds).size).toBe(questionIds.length);
+    for (const question of SCHNELLCHECK.questions) {
+      const optionIds = question.options.map((o) => o.id);
       expect(new Set(optionIds).size).toBe(optionIds.length);
     }
   });
 
-  it('bietet für jede Frage eine harmlose Antwort (Grün muss erreichbar sein)', () => {
-    expect(() => harmloseAntworten()).not.toThrow();
+  it('offers a harmless answer for every question (green must be reachable)', () => {
+    expect(() => harmlessAnswers()).not.toThrow();
   });
 
-  it('enthält den unveränderten Pflicht-Disclaimer', () => {
+  it('contains the unmodified mandatory disclaimer', () => {
     expect(SCHNELLCHECK.disclaimer).toBe(SCHNELLCHECK_DISCLAIMER);
     expect(SCHNELLCHECK.disclaimer).toContain('ersetzt keine Rechtsberatung');
   });
 
-  it('formuliert keine Rechtsfolgen als Tatsache („Sie sind verpflichtet“)', () => {
-    const alleTexte = SCHNELLCHECK.fragen
-      .flatMap((f) => [f.text, f.hinweis ?? '', ...f.optionen.map((o) => o.text)])
+  it('never states legal consequences as fact ("Sie sind verpflichtet")', () => {
+    const allTexts = SCHNELLCHECK.questions
+      .flatMap((q) => [q.text, q.hint ?? '', ...q.options.map((o) => o.text)])
       .join(' ');
-    expect(alleTexte).not.toMatch(/Sie sind verpflichtet/i);
+    expect(allTexts).not.toMatch(/Sie sind verpflichtet/i);
   });
 });
 
-describe('istVollstaendig', () => {
-  it('ist wahr, wenn jede Frage beantwortet ist', () => {
-    expect(istVollstaendig(SCHNELLCHECK, harmloseAntworten())).toBe(true);
+describe('isComplete', () => {
+  it('is true when every question is answered', () => {
+    expect(isComplete(SCHNELLCHECK, harmlessAnswers())).toBe(true);
   });
 
-  it('ist falsch bei fehlender Antwort', () => {
-    const antworten = harmloseAntworten();
-    delete antworten['branche'];
-    expect(istVollstaendig(SCHNELLCHECK, antworten)).toBe(false);
+  it('is false when an answer is missing', () => {
+    const answers = harmlessAnswers();
+    delete answers['branche'];
+    expect(isComplete(SCHNELLCHECK, answers)).toBe(false);
   });
 
-  it('ist falsch bei leerer Auswahl', () => {
-    const antworten = { ...harmloseAntworten(), inventar: [] };
-    expect(istVollstaendig(SCHNELLCHECK, antworten)).toBe(false);
+  it('is false for an empty selection', () => {
+    const answers = { ...harmlessAnswers(), inventar: [] };
+    expect(isComplete(SCHNELLCHECK, answers)).toBe(false);
   });
 });
 
-describe('evaluate — Grundverhalten', () => {
-  it('wirft bei unbekannter Options-Id', () => {
-    expect(() => evaluate(SCHNELLCHECK, mitAntwort('inventar', 'gibt-es-nicht'))).toThrow(
-      /Unbekannte Antwortoption/,
+describe('evaluate — basics', () => {
+  it('throws on an unknown option id', () => {
+    expect(() => evaluate(SCHNELLCHECK, withAnswer('inventar', 'gibt-es-nicht'))).toThrow(
+      /Unknown answer option/,
     );
   });
 
-  it('bewertet fehlende Antworten als 0 Punkte (Teilstände sind erlaubt)', () => {
+  it('scores missing answers as 0 points (partial states are allowed)', () => {
     expect(evaluate(SCHNELLCHECK, {})).toEqual({
-      ampel: 'gruen',
-      punkte: 0,
+      trafficLight: 'green',
+      points: 0,
       flags: [],
-      befunde: [expect.stringContaining('keine Hinweise auf Hochrisiko-Pflichten')],
+      findings: [expect.stringContaining('keine Hinweise auf Hochrisiko-Pflichten')],
     });
   });
 
-  it('summiert Punkte über alle Fragen', () => {
-    const antworten: Antworten = {
-      ...harmloseAntworten(),
+  it('sums points across all questions', () => {
+    const answers: Answers = {
+      ...harmlessAnswers(),
       'ki-tools': ['ja-bewusst'], // 2
       inventar: ['teilweise'], // 1
       richtlinien: ['teilweise'], // 1
     };
-    expect(evaluate(SCHNELLCHECK, antworten).punkte).toBe(4);
+    expect(evaluate(SCHNELLCHECK, answers).points).toBe(4);
   });
 });
 
-describe('evaluate — Ampel', () => {
-  it('ist grün bei durchgehend harmlosen Antworten', () => {
-    const result = evaluate(SCHNELLCHECK, harmloseAntworten());
-    expect(result.ampel).toBe('gruen');
-    expect(result.punkte).toBe(0);
+describe('evaluate — traffic light', () => {
+  it('is green for consistently harmless answers', () => {
+    const result = evaluate(SCHNELLCHECK, harmlessAnswers());
+    expect(result.trafficLight).toBe('green');
+    expect(result.points).toBe(0);
     expect(result.flags).toEqual([]);
   });
 
   it.each([
-    ['personalwesen', 'ja', 'anhang-iii'],
-    ['kredit-bonitaet', 'ja', 'anhang-iii'],
-    ['produktsicherheit', 'ja', 'anhang-i'],
-  ])('ist rot, sobald %s=%s ein Hochrisiko-Flag (%s) setzt', (frageId, optionId, flag) => {
-    const result = evaluate(SCHNELLCHECK, mitAntwort(frageId, optionId));
-    expect(result.ampel).toBe('rot');
+    ['personalwesen', 'ja', 'annex-iii'],
+    ['kredit-bonitaet', 'ja', 'annex-iii'],
+    ['produktsicherheit', 'ja', 'annex-i'],
+  ])('is red as soon as %s=%s sets a high-risk flag (%s)', (questionId, optionId, flag) => {
+    const result = evaluate(SCHNELLCHECK, withAnswer(questionId, optionId));
+    expect(result.trafficLight).toBe('red');
     expect(result.flags).toContain(flag);
   });
 
   it.each([
-    ['ki-tools', 'vermutlich', 'schatten-ki'],
-    ['ki-tools', 'unbekannt', 'schatten-ki'],
-    ['personenbezogene-daten', 'ja', 'dsgvo'],
-    ['personenbezogene-daten', 'unbekannt', 'dsgvo'],
+    ['ki-tools', 'vermutlich', 'shadow-ai'],
+    ['ki-tools', 'unbekannt', 'shadow-ai'],
+    ['personenbezogene-daten', 'ja', 'gdpr'],
+    ['personenbezogene-daten', 'unbekannt', 'gdpr'],
     ['kundeninteraktion', 'ja', 'art-50'],
     ['kundeninteraktion', 'geplant', 'art-50'],
-    ['inventar', 'nein', 'kein-inventar'],
-    ['richtlinien', 'nein', 'keine-richtlinie'],
-  ])('ist gelb bei Flag ohne Hochrisiko (%s=%s → %s)', (frageId, optionId, flag) => {
-    const result = evaluate(SCHNELLCHECK, mitAntwort(frageId, optionId));
-    expect(result.ampel).toBe('gelb');
+    ['inventar', 'nein', 'no-inventory'],
+    ['richtlinien', 'nein', 'no-policy'],
+  ])('is yellow for a flag without high risk (%s=%s → %s)', (questionId, optionId, flag) => {
+    const result = evaluate(SCHNELLCHECK, withAnswer(questionId, optionId));
+    expect(result.trafficLight).toBe('yellow');
     expect(result.flags).toContain(flag);
   });
 
-  it('ist gelb ab 4 Punkten auch ohne Flags', () => {
-    const antworten: Antworten = {
-      ...harmloseAntworten(),
-      'ki-tools': ['ja-bewusst'], // 2, kein Flag
-      personalwesen: ['geplant'], // 2, kein Flag
+  it('is yellow from 4 points even without flags', () => {
+    const answers: Answers = {
+      ...harmlessAnswers(),
+      'ki-tools': ['ja-bewusst'], // 2, no flag
+      personalwesen: ['geplant'], // 2, no flag
     };
-    const result = evaluate(SCHNELLCHECK, antworten);
-    expect(result.punkte).toBe(4);
+    const result = evaluate(SCHNELLCHECK, answers);
+    expect(result.points).toBe(4);
     expect(result.flags).toEqual([]);
-    expect(result.ampel).toBe('gelb');
+    expect(result.trafficLight).toBe('yellow');
   });
 
-  it('bleibt grün unterhalb der Gelb-Schwelle ohne Flags', () => {
-    const antworten: Antworten = {
-      ...harmloseAntworten(),
-      'ki-tools': ['ja-bewusst'], // 2, kein Flag
-      inventar: ['teilweise'], // 1, kein Flag
+  it('stays green below the yellow threshold without flags', () => {
+    const answers: Answers = {
+      ...harmlessAnswers(),
+      'ki-tools': ['ja-bewusst'], // 2, no flag
+      inventar: ['teilweise'], // 1, no flag
     };
-    const result = evaluate(SCHNELLCHECK, antworten);
-    expect(result.punkte).toBe(3);
-    expect(result.ampel).toBe('gruen');
+    const result = evaluate(SCHNELLCHECK, answers);
+    expect(result.points).toBe(3);
+    expect(result.trafficLight).toBe('green');
   });
 
-  it('Hochrisiko dominiert: rot auch bei sonst harmlosen Antworten und wenigen Punkten', () => {
-    const result = evaluate(SCHNELLCHECK, mitAntwort('produktsicherheit', 'ja'));
-    expect(result.punkte).toBe(4);
-    expect(result.ampel).toBe('rot');
+  it('high risk dominates: red even with otherwise harmless answers and few points', () => {
+    const result = evaluate(SCHNELLCHECK, withAnswer('produktsicherheit', 'ja'));
+    expect(result.points).toBe(4);
+    expect(result.trafficLight).toBe('red');
   });
 });
 
-describe('evaluate — Befunde', () => {
-  it('liefert für Grün genau einen beruhigenden, beobachtenden Befund', () => {
-    const result = evaluate(SCHNELLCHECK, harmloseAntworten());
-    expect(result.befunde).toHaveLength(1);
-    expect(result.befunde[0]).toContain('keine Hinweise');
+describe('evaluate — findings', () => {
+  it('returns exactly one reassuring, observational finding for green', () => {
+    const result = evaluate(SCHNELLCHECK, harmlessAnswers());
+    expect(result.findings).toHaveLength(1);
+    expect(result.findings[0]).toContain('keine Hinweise');
   });
 
-  it('nennt bei Anhang I die Dezember-2027-Frist', () => {
-    const result = evaluate(SCHNELLCHECK, mitAntwort('produktsicherheit', 'ja'));
-    expect(result.befunde[0]).toContain('Dezember 2027');
+  it('mentions the December 2027 deadline for Annex I', () => {
+    const result = evaluate(SCHNELLCHECK, withAnswer('produktsicherheit', 'ja'));
+    expect(result.findings[0]).toContain('Dezember 2027');
   });
 
-  it('nennt bei Art. 50 den Geltungsbeginn August 2026', () => {
-    const result = evaluate(SCHNELLCHECK, mitAntwort('kundeninteraktion', 'ja'));
-    expect(result.befunde[0]).toContain('August 2026');
+  it('mentions the August 2026 effective date for Art. 50', () => {
+    const result = evaluate(SCHNELLCHECK, withAnswer('kundeninteraktion', 'ja'));
+    expect(result.findings[0]).toContain('August 2026');
   });
 
-  it('begrenzt auf maximal 3 Befunde und priorisiert Hochrisiko', () => {
-    const antworten: Antworten = {
-      ...harmloseAntworten(),
-      'ki-tools': ['vermutlich'], // schatten-ki
-      personalwesen: ['ja'], // anhang-iii
-      produktsicherheit: ['ja'], // anhang-i
-      'personenbezogene-daten': ['ja'], // dsgvo
+  it('limits to at most 3 findings and prioritizes high risk', () => {
+    const answers: Answers = {
+      ...harmlessAnswers(),
+      'ki-tools': ['vermutlich'], // shadow-ai
+      personalwesen: ['ja'], // annex-iii
+      produktsicherheit: ['ja'], // annex-i
+      'personenbezogene-daten': ['ja'], // gdpr
       kundeninteraktion: ['ja'], // art-50
-      inventar: ['nein'], // kein-inventar
-      richtlinien: ['nein'], // keine-richtlinie
+      inventar: ['nein'], // no-inventory
+      richtlinien: ['nein'], // no-policy
     };
-    const result = evaluate(SCHNELLCHECK, antworten);
-    expect(result.befunde).toHaveLength(3);
-    expect(result.befunde[0]).toContain('Anhang III');
-    expect(result.befunde[1]).toContain('Anhang I');
-    expect(result.befunde[2]).toContain('Art. 50');
+    const result = evaluate(SCHNELLCHECK, answers);
+    expect(result.findings).toHaveLength(3);
+    expect(result.findings[0]).toContain('Anhang III');
+    expect(result.findings[1]).toContain('Anhang I');
+    expect(result.findings[2]).toContain('Art. 50');
   });
 
-  it('formuliert Befunde als Orientierung, nie als Rechtsfolge', () => {
-    const antworten: Antworten = {
-      ...harmloseAntworten(),
+  it('phrases findings as orientation, never as legal consequence', () => {
+    const answers: Answers = {
+      ...harmlessAnswers(),
       personalwesen: ['ja'],
       produktsicherheit: ['ja'],
       kundeninteraktion: ['ja'],
       inventar: ['nein'],
     };
-    for (const befund of evaluate(SCHNELLCHECK, antworten).befunde) {
-      expect(befund).not.toMatch(/Sie sind verpflichtet|Sie müssen/i);
+    for (const finding of evaluate(SCHNELLCHECK, answers).findings) {
+      expect(finding).not.toMatch(/Sie sind verpflichtet|Sie müssen/i);
     }
   });
 });
 
-describe('evaluate — vollständige Optionsabdeckung', () => {
-  // Jede einzelne Antwortoption jeder Frage wird einmal isoliert bewertet:
-  // Punkte und Flags müssen exakt der Definition entsprechen.
-  for (const frage of SCHNELLCHECK.fragen) {
-    for (const option of frage.optionen) {
-      it(`${frage.id} → ${option.id}: Punkte=${option.punkte ?? 0}, Flags=${(option.flags ?? []).join(',') || '—'}`, () => {
-        const result = evaluate(SCHNELLCHECK, { [frage.id]: [option.id] });
-        expect(result.punkte).toBe(option.punkte ?? 0);
+describe('evaluate — full option coverage', () => {
+  // Every single answer option of every question is scored once in isolation:
+  // points and flags must match the definition exactly.
+  for (const question of SCHNELLCHECK.questions) {
+    for (const option of question.options) {
+      it(`${question.id} → ${option.id}: points=${option.points ?? 0}, flags=${(option.flags ?? []).join(',') || '—'}`, () => {
+        const result = evaluate(SCHNELLCHECK, { [question.id]: [option.id] });
+        expect(result.points).toBe(option.points ?? 0);
         expect([...result.flags].sort()).toEqual([...(option.flags ?? [])].sort());
       });
     }
