@@ -50,7 +50,7 @@ import { RouterLink } from '@angular/router';
       <h2>Kontakt</h2>
       <p>
         Redaktion AI for Germany<br />
-        E-Mail: <mark class="ausfuellen">[AUSFÜLLEN: Redaktions-E-Mail-Adresse]</mark>
+        E-Mail: <mark class="fill-in">[AUSFÜLLEN: Redaktions-E-Mail-Adresse]</mark>
       </p>
     </div>
   `,
