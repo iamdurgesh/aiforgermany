@@ -1,6 +1,6 @@
 @use 'styles/tokens';
 
-// Selbst gehostete Schrift (WORKING MAP §6.5: keine externen Font-Server)
+// Self-hosted font (WORKING MAP §6.5: no external font servers)
 @font-face {
   font-family: 'InterVariable';
   font-style: normal;
@@ -71,8 +71,8 @@ a {
   text-underline-offset: 0.18em;
   text-decoration-color: var(--color-accent-line);
   transition:
-    color var(--dauer-schnell) var(--ease-out),
-    text-decoration-color var(--dauer-schnell) var(--ease-out);
+    color var(--duration-fast) var(--ease-out),
+    text-decoration-color var(--duration-fast) var(--ease-out);
 
   &:hover {
     color: var(--color-accent-dark);
@@ -100,7 +100,7 @@ textarea {
 }
 
 // ---------------------------------------------------------------------------
-// Layout-Hilfen
+// Layout helpers
 // ---------------------------------------------------------------------------
 
 .container {
@@ -136,7 +136,7 @@ textarea {
   }
 }
 
-// Inhaltsseiten (Recht, Über, Artikel)
+// Content pages (legal, about, articles)
 .page {
   max-width: var(--width-prose);
   margin-inline: auto;
@@ -184,10 +184,29 @@ textarea {
     border-top: 1px solid var(--color-border);
     margin-block: var(--space-6);
   }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: var(--space-5);
+    font-size: var(--text-sm);
+
+    th,
+    td {
+      text-align: left;
+      padding: var(--space-3);
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    th {
+      font-weight: 650;
+      border-bottom: 2px solid var(--color-border-strong);
+    }
+  }
 }
 
-// Vom Betreiber zu ergänzende Angaben — bewusst auffällig (WORKING MAP §6)
-.ausfuellen {
+// Details the operator still has to fill in — deliberately conspicuous (WORKING MAP §6)
+.fill-in {
   background: var(--color-risk-yellow-bg);
   color: inherit;
   padding: 0 var(--space-1);
@@ -196,14 +215,14 @@ textarea {
 }
 
 // ---------------------------------------------------------------------------
-// Buttons & Formulare (geteilt: Schnellcheck, Newsletter, Startseite)
+// Buttons & forms (shared: Schnellcheck, newsletter, home page)
 // ---------------------------------------------------------------------------
 
-.primaer {
+.primary {
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
-  background: linear-gradient(135deg, var(--color-schwarz-hell) 0%, var(--color-schwarz) 100%);
+  background: linear-gradient(135deg, var(--color-black-light) 0%, var(--color-black) 100%);
   color: #fff;
   border: none;
   border-radius: var(--radius);
@@ -213,9 +232,9 @@ textarea {
   cursor: pointer;
   box-shadow: var(--shadow-sm);
   transition:
-    transform var(--dauer-schnell) var(--ease-out),
-    box-shadow var(--dauer-schnell) var(--ease-out),
-    filter var(--dauer-schnell) var(--ease-out);
+    transform var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out),
+    filter var(--duration-fast) var(--ease-out);
 
   &:hover {
     color: #fff;
@@ -237,7 +256,7 @@ textarea {
   }
 }
 
-.sekundaer {
+.secondary {
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
@@ -250,9 +269,9 @@ textarea {
   text-decoration: none;
   cursor: pointer;
   transition:
-    border-color var(--dauer-schnell) var(--ease-out),
-    color var(--dauer-schnell) var(--ease-out),
-    background var(--dauer-schnell) var(--ease-out);
+    border-color var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out),
+    background var(--duration-fast) var(--ease-out);
 
   &:hover {
     border-color: var(--color-accent);
@@ -261,7 +280,7 @@ textarea {
   }
 }
 
-.feld {
+.field {
   margin-block: var(--space-4);
 
   label {
@@ -279,8 +298,8 @@ textarea {
     border-radius: var(--radius);
     background: var(--color-bg);
     transition:
-      border-color var(--dauer-schnell) var(--ease-out),
-      box-shadow var(--dauer-schnell) var(--ease-out);
+      border-color var(--duration-fast) var(--ease-out),
+      box-shadow var(--duration-fast) var(--ease-out);
 
     &:focus-visible {
       outline: none;
@@ -290,7 +309,7 @@ textarea {
   }
 }
 
-.feld--checkbox {
+.field--checkbox {
   display: flex;
   gap: var(--space-3);
   align-items: baseline;
@@ -309,25 +328,25 @@ textarea {
   }
 }
 
-.feld-fehler {
+.field-error {
   color: var(--color-risk-red);
   font-size: var(--text-sm);
   margin-block: var(--space-2);
 }
 
-.hinweis-erfolg {
+.success-note {
   background: var(--color-risk-green-bg);
   border-left: 4px solid var(--color-risk-green);
   padding: var(--space-3) var(--space-4);
   border-radius: var(--radius);
-  animation: einblenden var(--dauer-normal) var(--ease-out);
+  animation: fade-in var(--duration-normal) var(--ease-out);
 }
 
 // ---------------------------------------------------------------------------
-// Bewegung — dezent, abschaltbar
+// Motion — subtle, can be disabled
 // ---------------------------------------------------------------------------
 
-@keyframes einblenden {
+@keyframes fade-in {
   from {
     opacity: 0;
     transform: translateY(14px);
@@ -338,7 +357,7 @@ textarea {
   }
 }
 
-@keyframes aufskalieren {
+@keyframes scale-up {
   from {
     opacity: 0;
     transform: scale(0.96) translateY(8px);
@@ -349,28 +368,28 @@ textarea {
   }
 }
 
-// Einstiegsanimation, gestaffelt via --reihenfolge
-.einblenden {
-  animation: einblenden var(--dauer-langsam) var(--ease-out) both;
-  animation-delay: calc(var(--reihenfolge, 0) * 90ms);
+// Entry animation, staggered via --stagger
+.fade-in {
+  animation: fade-in var(--duration-slow) var(--ease-out) both;
+  animation-delay: calc(var(--stagger, 0) * 90ms);
 }
 
-// Scroll-Reveal ohne JavaScript (progressive enhancement)
+// Scroll reveal without JavaScript (progressive enhancement)
 @supports (animation-timeline: view()) {
   .scroll-reveal {
-    animation: einblenden var(--dauer-langsam) var(--ease-out) both;
+    animation: fade-in var(--duration-slow) var(--ease-out) both;
     animation-timeline: view();
     animation-range: entry 0% entry 32%;
   }
 }
 
-// Router-View-Transitions: sanfter Crossfade
+// Router view transitions: gentle crossfade
 ::view-transition-old(root) {
-  animation-duration: var(--dauer-schnell);
+  animation-duration: var(--duration-fast);
 }
 
 ::view-transition-new(root) {
-  animation-duration: var(--dauer-normal);
+  animation-duration: var(--duration-normal);
 }
 
 @media (prefers-reduced-motion: reduce) {
