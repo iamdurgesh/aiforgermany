@@ -1,13 +1,13 @@
 import { AngularAppEngine, createRequestHandler } from '@angular/ssr';
 
-import { bereinigeUnbestaetigteLeads } from './api/handlers';
+import { cleanupUnconfirmedLeads } from './api/handlers';
 import { CfRequest, Env } from './api/env';
 import { handleApi } from './api/router';
 
 const angularApp = new AngularAppEngine();
 
-const PRIMAER_HOST = 'aiforgermany.de';
-const WEITERLEITUNGS_HOSTS = new Set([
+const PRIMARY_HOST = 'aiforgermany.de';
+const REDIRECT_HOSTS = new Set([
   'www.aiforgermany.de',
   'aiforgermany.com',
   'www.aiforgermany.com',
@@ -20,18 +20,18 @@ const WEITERLEITUNGS_HOSTS = new Set([
 async function handleRequest(request: Request, env?: Env): Promise<Response> {
   const url = new URL(request.url);
 
-  // 301 auf die Primärdomain (WORKING MAP §1). Statische Asset-Pfade der
-  // Nebendomains brauchen zusätzlich Zone-Level-Redirect-Rules (siehe README).
-  if (WEITERLEITUNGS_HOSTS.has(url.hostname)) {
-    url.hostname = PRIMAER_HOST;
+  // 301 to the primary domain (WORKING MAP §1). Static asset paths of the
+  // secondary domains additionally need zone-level redirect rules (see README).
+  if (REDIRECT_HOSTS.has(url.hostname)) {
+    url.hostname = PRIMARY_HOST;
     url.protocol = 'https:';
     url.port = '';
     return Response.redirect(url.toString(), 301);
   }
   if (url.pathname.startsWith('/api/')) {
     if (!env) {
-      // ng-serve-Dev-Server ohne Worker-Bindings: API nur unter `npm run preview`.
-      return new Response('API nur in der Worker-Umgebung verfügbar.', { status: 501 });
+      // ng-serve dev server without worker bindings: API only under `npm run preview`.
+      return new Response('API only available in the worker environment.', { status: 501 });
     }
     return handleApi(request as CfRequest, env);
   }
@@ -39,14 +39,14 @@ async function handleRequest(request: Request, env?: Env): Promise<Response> {
   if (!response) {
     return new Response('Seite nicht gefunden.', { status: 404 });
   }
-  return mitSicherheitsHeadern(response);
+  return withSecurityHeaders(response);
 }
 
 /**
- * Sicherheits-Header für SSR-Antworten (z. B. 404-Seiten). Statische Assets
- * bekommen dieselben Header über public/_headers.
+ * Security headers for SSR responses (e.g. 404 pages). Static assets get
+ * the same headers via public/_headers.
  */
-function mitSicherheitsHeadern(response: Response): Response {
+function withSecurityHeaders(response: Response): Response {
   const headers = new Headers(response.headers);
   headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
   headers.set('Content-Security-Policy', "frame-ancestors 'none'");
@@ -65,9 +65,9 @@ export const reqHandler = createRequestHandler((request) => handleRequest(reques
 export default {
   fetch: (request: Request, env: Env) => handleRequest(request, env),
 
-  /** Cron-Trigger: unbestätigte Leads nach 30 Tagen löschen (WORKING MAP §6.7). */
+  /** Cron trigger: delete unconfirmed leads after 30 days (WORKING MAP §6.7). */
   scheduled: async (_event: unknown, env: Env) => {
-    const geloescht = await bereinigeUnbestaetigteLeads(env);
-    console.log(`Retention-Job: ${geloescht} unbestätigte Leads gelöscht.`);
+    const deletedCount = await cleanupUnconfirmedLeads(env);
+    console.log(`Retention job: deleted ${deletedCount} unconfirmed leads.`);
   },
 };
