@@ -9,7 +9,7 @@
   "assets": {
     "binding": "ASSETS",
     "directory": "dist/browser",
-    // Kanonische URLs ohne Trailing Slash (muss zu canonical/sitemap passen)
+    // Canonical URLs without trailing slash (must match canonical/sitemap)
     "html_handling": "drop-trailing-slash"
   },
   "compatibility_flags": [
@@ -17,21 +17,21 @@
   ],
   "vars": {
     "PUBLIC_SITE_URL": "https://aiforgermany.de",
-    // 'none' bis der EU-Mail-Provider entschieden ist (TODO-QUESTION.md #3)
+    // 'none' until the EU mail provider is decided (TODO-QUESTION.md #3)
     "MAIL_PROVIDER": "none"
   },
   "d1_databases": [
     {
       "binding": "DB",
       "database_name": "aiforgermany",
-      // [AUSFÜLLEN] Nach `wrangler d1 create aiforgermany` die echte Id eintragen.
-      // Wichtig: EU location hint wählen (TODO-QUESTION.md #2).
+      // [FILL IN] Enter the real id after `wrangler d1 create aiforgermany`.
+      // Important: choose an EU location hint (TODO-QUESTION.md #2).
       "database_id": "00000000-0000-0000-0000-000000000000",
       "migrations_dir": "migrations"
     }
   ],
   "triggers": {
-    // Retention-Job: täglich 03:00 UTC unbestätigte Leads (>30 Tage) löschen
+    // Retention job: daily at 03:00 UTC, delete unconfirmed leads (>30 days)
     "crons": ["0 3 * * *"]
   }
 }
