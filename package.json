@@ -21,22 +21,27 @@
   },
   "private": true,
   "packageManager": "npm@10.9.2",
+  "overrides": {
+    "vite": {
+      "esbuild": "0.28.1"
+    }
+  },
   "dependencies": {
-    "@angular/common": "^22.0.5",
-    "@angular/compiler": "^22.0.5",
-    "@angular/core": "^22.0.5",
-    "@angular/forms": "^22.0.5",
-    "@angular/platform-browser": "^22.0.5",
-    "@angular/platform-server": "^22.0.5",
-    "@angular/router": "^22.0.5",
-    "@angular/ssr": "^22.0.5",
+    "@angular/common": "^22.0.7",
+    "@angular/compiler": "^22.0.7",
+    "@angular/core": "^22.0.7",
+    "@angular/forms": "^22.0.7",
+    "@angular/platform-browser": "^22.0.7",
+    "@angular/platform-server": "^22.0.7",
+    "@angular/router": "^22.0.7",
+    "@angular/ssr": "^22.0.7",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"
   },
   "devDependencies": {
-    "@angular/build": "^22.0.5",
-    "@angular/cli": "^22.0.5",
-    "@angular/compiler-cli": "^22.0.5",
+    "@angular/build": "^22.0.7",
+    "@angular/cli": "^22.0.7",
+    "@angular/compiler-cli": "^22.0.7",
     "@eslint/js": "^10.0.1",
     "@types/node": "^20.17.19",
     "angular-eslint": "^22.0.0",
