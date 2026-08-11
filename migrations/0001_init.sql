@@ -1,7 +1,7 @@
--- Schema laut WORKING MAP §2: zwei Tabellen, Datenminimierung (§6.7).
--- leads: E-Mail + Einwilligungs-/Bestätigungszeitpunkte + IP-abgeleitetes Land.
--- check_results: Antworten pseudonym; lead_id wird ERST bei Double-Opt-in-
--- Bestätigung gesetzt (vorher verweist nur leads.pending_check_result_id).
+-- Schema per WORKING MAP §2: two tables, data minimization (§6.7).
+-- leads: e-mail + consent/confirmation timestamps + IP-derived country.
+-- check_results: answers stored pseudonymously; lead_id is set ONLY on
+-- double-opt-in confirmation (before that, only leads.pending_check_result_id points to it).
 
 CREATE TABLE IF NOT EXISTS leads (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
