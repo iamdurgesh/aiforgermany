@@ -973,8 +973,6 @@ export class SchnellcheckComponent {
         email: this.email.value,
         consent: true,
         answers: this.answers(),
-        trafficLight: result.trafficLight,
-        findings: result.findings,
       })
       .subscribe({
         next: () => this.submitStatus.set('sent'),

@@ -3,6 +3,8 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 
+import type { ConfirmationRequiredResponseDto, NewsletterRequestDto } from '../../api/dto';
+
 type SubmitStatus = 'idle' | 'sending' | 'sent' | 'error';
 
 /**
@@ -87,8 +89,9 @@ export class NewsletterSignupComponent {
       return;
     }
     this.status.set('sending');
+    const request: NewsletterRequestDto = { email: this.email.value, consent: true };
     this.http
-      .post<void>('/api/newsletter', { email: this.email.value, consent: true })
+      .post<ConfirmationRequiredResponseDto>('/api/newsletter', request)
       .subscribe({
         next: () => this.status.set('sent'),
         error: () => this.status.set('error'),
