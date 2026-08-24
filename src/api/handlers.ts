@@ -1,15 +1,14 @@
 import { CfRequest, Env } from './env';
 import { createMailer } from './mail';
+import { SCHNELLCHECK } from '../app/features/schnellcheck/schnellcheck.definition';
+import { evaluate } from '../app/features/schnellcheck/schnellcheck.scoring';
+import type { CheckResultSummaryDto, LeadSourceDto } from './dto';
 import {
-  areValidFindings,
-  isValidAnswers,
-  isValidEmail,
-  isValidTrafficLight,
+  isNewsletterRequest,
+  isSchnellcheckResultRequest,
   jsonResponse,
   readJsonBody,
 } from './validation';
-
-type LeadSource = 'schnellcheck' | 'newsletter';
 
 interface LeadRow {
   id: number;
@@ -37,24 +36,23 @@ export async function schnellcheckResult(request: CfRequest, env: Env): Promise<
   if (!body) {
     return jsonResponse(400, { error: 'Ungültiger Anfrage-Body.' });
   }
-  const { email, consent, answers, trafficLight, findings } = body;
-  if (
-    !isValidEmail(email) ||
-    consent !== true ||
-    !isValidAnswers(answers) ||
-    !isValidTrafficLight(trafficLight) ||
-    !areValidFindings(findings)
-  ) {
+  if (!isSchnellcheckResultRequest(body)) {
     return jsonResponse(400, { error: 'Ungültige oder unvollständige Angaben.' });
   }
+  const { email, answers } = body;
+  const result = evaluate(SCHNELLCHECK, answers);
+  const riskSummary = {
+    trafficLight: result.trafficLight,
+    findings: result.findings,
+  } satisfies CheckResultSummaryDto;
 
   // Store the answers pseudonymously (§6.7): lead_id stays NULL until confirmation.
-  const result = await env.DB.prepare(
+  const insertResult = await env.DB.prepare(
     'INSERT INTO check_results (answers_json, risk_summary) VALUES (?, ?)',
   )
-    .bind(JSON.stringify(answers), JSON.stringify({ trafficLight, findings }))
+    .bind(JSON.stringify(answers), JSON.stringify(riskSummary))
     .run();
-  const resultId = result.meta.last_row_id;
+  const resultId = insertResult.meta.last_row_id;
 
   await upsertLeadAndSendOptIn(env, request, email, 'schnellcheck', resultId);
   return jsonResponse(202, { status: 'confirmation-required' });
@@ -66,10 +64,10 @@ export async function newsletter(request: CfRequest, env: Env): Promise<Response
   if (!body) {
     return jsonResponse(400, { error: 'Ungültiger Anfrage-Body.' });
   }
-  const { email, consent } = body;
-  if (!isValidEmail(email) || consent !== true) {
+  if (!isNewsletterRequest(body)) {
     return jsonResponse(400, { error: 'Ungültige oder unvollständige Angaben.' });
   }
+  const { email } = body;
   await upsertLeadAndSendOptIn(env, request, email, 'newsletter', null);
   return jsonResponse(202, { status: 'confirmation-required' });
 }
@@ -130,7 +128,7 @@ async function upsertLeadAndSendOptIn(
   env: Env,
   request: CfRequest,
   email: string,
-  source: LeadSource,
+  source: LeadSourceDto,
   resultId: number | null,
 ): Promise<void> {
   // Data minimization: only the country derived from the IP, never the IP itself.

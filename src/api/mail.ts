@@ -1,8 +1,9 @@
 import { Env } from './env';
+import type { LeadSourceDto } from './dto';
 
 export interface ConfirmationMail {
   readonly to: string;
-  readonly source: 'schnellcheck' | 'newsletter';
+  readonly source: LeadSourceDto;
   readonly confirmationUrl: string;
 }
 
@@ -17,9 +18,8 @@ export interface Mailer {
  */
 class NoopMailer implements Mailer {
   async sendConfirmation(mail: ConfirmationMail): Promise<void> {
-    console.log(
-      `[mail:none] Double opt-in (${mail.source}) for ${mail.to}: ${mail.confirmationUrl}`,
-    );
+    void mail;
+    console.log('[mail:none] Double opt-in mail suppressed because MAIL_PROVIDER=none.');
   }
 }
 
