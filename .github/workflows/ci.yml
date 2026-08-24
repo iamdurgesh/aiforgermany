@@ -1,0 +1,11 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+
+# Least-Privilege für das GITHUB_TOKEN (Supply-Chain-Härtung)
+permissions:
+  contents: read
+
