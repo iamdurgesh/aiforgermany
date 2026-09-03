@@ -87,7 +87,7 @@ Danach im Cloudflare-Dashboard:
 | Variable | Ort | Bedeutung |
 |---|---|---|
 | `PUBLIC_SITE_URL` | `wrangler.jsonc` → `vars` | Basis-URL für Bestätigungslinks |
-| `MAIL_PROVIDER` | `wrangler.jsonc` → `vars` | `none` bis der EU-Provider entschieden ist (`TODO-QUESTION.md` #3) |
+| `MAIL_PROVIDER` | `wrangler.jsonc` → `vars` | `none` bis der EU-Provider entschieden ist; unter `none` wird keine Mail versendet und kein Bestätigungslink geloggt (`TODO-QUESTION.md` #3) |
 | künftige Secrets (z. B. `MAIL_API_KEY`) | `wrangler secret put` / `.dev.vars` | nie im Repo |
 
 Lokale Overrides: `.dev.vars` (Vorlage: `.dev.vars.example`).
