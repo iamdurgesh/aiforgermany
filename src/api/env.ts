@@ -1,7 +1,7 @@
 /**
- * Worker-Umgebung. Bewusst minimale, strukturelle D1-Typen statt
- * @cloudflare/workers-types, um Konflikte mit den DOM-Typen des
- * Angular-SSR-Codes zu vermeiden.
+ * Worker environment. Deliberately minimal, structural D1 types instead of
+ * @cloudflare/workers-types to avoid conflicts with the DOM types of the
+ * Angular SSR code.
  */
 export interface D1PreparedStatement {
   bind(...values: readonly (string | number | null)[]): D1PreparedStatement;
@@ -16,13 +16,13 @@ export interface D1Database {
 export interface Env {
   readonly DB: D1Database;
   readonly ASSETS: { fetch(request: Request): Promise<Response> };
-  /** Kanonische Basis-URL für Bestätigungslinks, z. B. https://aiforgermany.de */
+  /** Canonical base URL for confirmation links, e.g. https://aiforgermany.de */
   readonly PUBLIC_SITE_URL: string;
-  /** 'none' bis der EU-Provider entschieden ist (TODO-QUESTION.md #3). */
+  /** 'none' until the EU provider is decided (TODO-QUESTION.md #3). */
   readonly MAIL_PROVIDER: string;
 }
 
-/** Von Cloudflare am Request bereitgestellte Metadaten (nur das Genutzte). */
+/** Request metadata provided by Cloudflare (only what we use). */
 export interface CfRequest extends Request {
   readonly cf?: { readonly country?: string };
 }
