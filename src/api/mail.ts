@@ -14,7 +14,7 @@ export interface Mailer {
 /**
  * Placeholder until the EU mail provider is decided
  * (TODO-QUESTION.md #3: Brevo EU, Mailjet EU, or SMTP at the German host).
- * Only logs — no personal data ever leaves the system.
+ * Logs only operational suppression, without e-mail addresses or bearer tokens.
  */
 class NoopMailer implements Mailer {
   async sendConfirmation(mail: ConfirmationMail): Promise<void> {
